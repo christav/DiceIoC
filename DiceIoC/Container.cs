@@ -40,7 +40,13 @@ namespace DiceIoC
 
         public T Resolve<T>(string name)
         {
-            return (T) Resolve(MakeKey<T>(name), this);
+            object resolved;
+            if (!TryResolve(name, out resolved))
+            {
+                throw new ArgumentException(string.Format("The name/type {0}/{1} is not registered", name,
+                    typeof(T).Name));
+            }
+            return (T) resolved;
         }
 
         public T Resolve<T>()
@@ -48,9 +54,26 @@ namespace DiceIoC
             return Resolve<T>(null);
         }
 
+        public bool TryResolve<T>(string name, out T resolved)
+        {
+            resolved = default(T);
+            object result;
+            bool succeeded = TryResolve(MakeKey<T>(name), this, out result);
+            if (succeeded)
+            {
+                resolved = (T) result;
+            }
+            return succeeded;
+        }
+
+        public bool TryResolve<T>(out T resolved)
+        {
+            return TryResolve(null, out resolved);
+        }
+
         public IEnumerable<T> ResolveAll<T>()
         {
-            return factories.Keys.Where(k => k.Value == typeof (T)).Select(key => (T) Resolve(key, this));
+            return factories.Keys.Where(k => k.Value == typeof (T)).Select(key => Resolve<T>(key.Key));
         }
 
         public bool IsRegistered<T>(string name)
@@ -88,18 +111,20 @@ namespace DiceIoC
             return new KeyValuePair<string, Type>(name, typeof (T));
         }
 
-        private object Resolve(KeyValuePair<string, Type> key, Container c)
+        private bool TryResolve(KeyValuePair<string, Type> key, Container c, out object result)
         {
             Func<Container, string, Type, object> factory;
             if (factories.TryGetValue(key, out factory))
             {
-                return factory(c, key.Key, key.Value);
+                result = factory(c, key.Key, key.Value);
+                return true;
             }
             if (parent != null)
             {
-                return parent.Resolve(key, c);
+                return parent.TryResolve(key, c, out result);
             }
-            throw new ArgumentException(string.Format("The name/type {0}/{1} is not registered", key.Key, key.Value.Name));
+            result = null;
+            return false;
         }
     }
 }
