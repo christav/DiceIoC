@@ -40,13 +40,13 @@ namespace DiceIoC
 
         public T Resolve<T>(string name)
         {
-            object resolved;
+            T resolved;
             if (!TryResolve(name, out resolved))
             {
                 throw new ArgumentException(string.Format("The name/type {0}/{1} is not registered", name,
                     typeof(T).Name));
             }
-            return (T) resolved;
+            return resolved;
         }
 
         public T Resolve<T>()
