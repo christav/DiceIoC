@@ -6,8 +6,8 @@ namespace DiceIoC
 {
     public class Container
     {
-        private readonly Dictionary<KeyValuePair<string, Type>, Func<Container, string, Type, object>> factories =
-            new Dictionary<KeyValuePair<string, Type>, Func<Container, string, Type, object>>();
+        private readonly Dictionary<RegistrationKey, Func<Container, string, Type, object>> factories =
+            new Dictionary<RegistrationKey, Func<Container, string, Type, object>>();
 
         private readonly Container parent;
 
@@ -43,7 +43,7 @@ namespace DiceIoC
             T resolved;
             if (!TryResolve(name, out resolved))
             {
-                throw new ArgumentException(string.Format("The name/type {0}/{1} is not registered", name,
+                throw new ArgumentException(string.Format("The Name/Type {0}/{1} is not registered", name,
                     typeof(T).Name));
             }
             return resolved;
@@ -73,7 +73,7 @@ namespace DiceIoC
 
         public IEnumerable<T> ResolveAll<T>()
         {
-            return factories.Keys.Where(k => k.Value == typeof (T)).Select(key => Resolve<T>(key.Key));
+            return factories.Keys.Where(k => k.Type == typeof (T)).Select(key => Resolve<T>(key.Name));
         }
 
         public bool IsRegistered<T>(string name)
@@ -84,7 +84,7 @@ namespace DiceIoC
 
         public IEnumerable<KeyValuePair<string, Type>> Registrations
         {
-            get { return factories.Keys; }
+            get { return factories.Keys.Select(k => new KeyValuePair<string, Type>(k.Name, k.Type)); }
         }
 
         public static Func<Container, string, Type, T> Singleton<T>(Func<Container, string, Type, T> factory)
@@ -106,17 +106,17 @@ namespace DiceIoC
             return Singleton((ioc, n, t) => factory(ioc));
         }
 
-        private KeyValuePair<string, Type> MakeKey<T>(string name)
+        private RegistrationKey MakeKey<T>(string name)
         {
-            return new KeyValuePair<string, Type>(name, typeof (T));
+            return new RegistrationKey(name, typeof(T));
         }
 
-        private bool TryResolve(KeyValuePair<string, Type> key, Container c, out object result)
+        private bool TryResolve(RegistrationKey key, Container c, out object result)
         {
             Func<Container, string, Type, object> factory;
             if (factories.TryGetValue(key, out factory))
             {
-                result = factory(c, key.Key, key.Value);
+                result = factory(c, key.Name, key.Type);
                 return true;
             }
             if (parent != null)

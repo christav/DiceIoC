@@ -6,3 +6,4 @@ TestResults
 *.suo
 *.orig
 packages
+.nuget
