@@ -43,6 +43,9 @@
     <Reference Include="Microsoft.Practices.Unity.Configuration">
       <HintPath>..\packages\Unity.3.0.1304.0\lib\Net45\Microsoft.Practices.Unity.Configuration.dll</HintPath>
     </Reference>
+    <Reference Include="Munq.IocContainer">
+      <HintPath>..\packages\Munq.IocContainer.3.1.6\Lib\Munq.IocContainer.dll</HintPath>
+    </Reference>
     <Reference Include="StructureMap">
       <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
     </Reference>
@@ -70,6 +73,7 @@
     <Compile Include="Domain\Logger.cs" />
     <Compile Include="Domain\StockQuote.cs" />
     <Compile Include="Domain\WebService.cs" />
+    <Compile Include="MunqUseCase.cs" />
     <Compile Include="PlainSingletonUseCase.cs" />
     <Compile Include="PlainUseCase.cs" />
     <Compile Include="Program.cs" />
