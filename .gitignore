@@ -7,3 +7,8 @@ TestResults
 *.orig
 packages
 .nuget
+
+# Visual Studio Profiling artifacts
+*.vsp
+*.vspx
+*.psess
