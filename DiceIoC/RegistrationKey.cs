@@ -2,23 +2,26 @@
 
 namespace DiceIoC
 {
-    class RegistrationKey
+    struct RegistrationKey
     {
-        public string Name { get; private set; }
-        public Type Type { get; private set; }
+        public readonly string Name;
+        public readonly Type Type;
 
         public RegistrationKey(string name, Type type)
         {
-            this.Name = name;
-            this.Type = type;
+            Name = name;
+            Type = type;
         }
 
         public override bool Equals(object obj)
         {
-            var r = obj as RegistrationKey;
-            return r != null &&
-                Type == r.Type &&
-                string.Compare(Name, r.Name, StringComparison.OrdinalIgnoreCase) == 0;
+            if (obj is RegistrationKey)
+            {
+                var r = (RegistrationKey) obj;
+                return Type == r.Type &&
+                       string.Compare(Name, r.Name, StringComparison.OrdinalIgnoreCase) == 0;
+            }
+            return false;
         }
 
         public override int GetHashCode()
