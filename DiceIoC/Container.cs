@@ -16,26 +16,40 @@ namespace DiceIoC
             this.parent = parent;
         }
 
-        public Container Register<T>(string name, Func<Container, string, Type, T> factory)
+        public IEnumerable<KeyValuePair<string, Type>> Registrations
         {
-            var key = MakeKey<T>(name);
-            factories[key] = (c, n, t) => (object)factory(c, n, t);
+            get { return factories.Keys.Select(k => new KeyValuePair<string, Type>(k.Name, k.Type)); }
+        }
+
+        public Container Register<T>(string name, Func<Container, string, Type, T> factory,
+                                     params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
+                                         modifiers)
+        {
+            RegistrationKey key = MakeKey<T>(name);
+            Func<Container, string, Type, object> objFactory = (c, n, t) => (object) factory(c, n, t);
+            factories[key] = modifiers.Aggregate(objFactory, (current, modifier) => modifier(current));
             return this;
         }
 
-        public Container Register<T>(Func<Container, string, Type, T> factory)
+        public Container Register<T>(Func<Container, string, Type, T> factory,
+                                     params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
+                                         modifiers)
         {
-            return Register(null, factory);
+            return Register(null, factory, modifiers);
         }
 
-        public Container Register<T>(string name, Func<Container, T> factory)
+        public Container Register<T>(string name, Func<Container, T> factory,
+                                     params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
+                                         modifiers)
         {
-            return Register(name, (c, n, t) => factory(c));
+            return Register(name, (c, n, t) => factory(c), modifiers);
         }
 
-        public Container Register<T>(Func<Container, T> factory)
+        public Container Register<T>(Func<Container, T> factory,
+                                     params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
+                                         modifiers)
         {
-            return Register(null, factory);
+            return Register(null, factory, modifiers);
         }
 
         public T Resolve<T>(string name)
@@ -44,7 +58,7 @@ namespace DiceIoC
             if (!TryResolve(name, out resolved))
             {
                 throw new ArgumentException(string.Format("The Name/Type {0}/{1} is not registered", name,
-                    typeof(T).Name));
+                                                          typeof (T).Name));
             }
             return resolved;
         }
@@ -78,37 +92,13 @@ namespace DiceIoC
 
         public bool IsRegistered<T>(string name)
         {
-            var key = MakeKey<T>(name);
+            RegistrationKey key = MakeKey<T>(name);
             return factories.ContainsKey(key);
-        }
-
-        public IEnumerable<KeyValuePair<string, Type>> Registrations
-        {
-            get { return factories.Keys.Select(k => new KeyValuePair<string, Type>(k.Name, k.Type)); }
-        }
-
-        public static Func<Container, string, Type, T> Singleton<T>(Func<Container, string, Type, T> factory)
-        {
-            bool created = false;
-            T cache = default(T);
-            return (ioc, name, t) => {
-                if (!created)
-                {
-                    cache = factory(ioc, name, t);
-                    created = true;
-                }
-                return cache;
-            };
-        }
-
-        public static Func<Container, string, Type, T> Singleton<T>(Func<Container, T> factory)
-        {
-            return Singleton((ioc, n, t) => factory(ioc));
         }
 
         private RegistrationKey MakeKey<T>(string name)
         {
-            return new RegistrationKey(name, typeof(T));
+            return new RegistrationKey(name, typeof (T));
         }
 
         private bool TryResolve(RegistrationKey key, Container c, out object result)
