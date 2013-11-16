@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Basics\SimpleRegistrations.cs" />
     <Compile Include="Basics\SingletonLifetime.cs" />
+    <Compile Include="ExpressionExperiments\Expressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SampleTypes\ConcreteClass.cs" />
     <Compile Include="SampleTypes\ISimpleInterface.cs" />

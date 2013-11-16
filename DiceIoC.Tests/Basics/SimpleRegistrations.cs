@@ -41,10 +41,10 @@ namespace DiceIoC.Tests.Basics
         public void ResolvingInvokesRegisteredDelegate()
         {
             bool called = false;
-            container.Register(c =>
-                {
+            container.Register(c => new ConcreteClass(),
+                factory => (c, n, t) => {
                     called = true;
-                    return new ConcreteClass();
+                    return factory(c, n, t);
                 });
 
             container.Resolve<ConcreteClass>();
@@ -55,7 +55,8 @@ namespace DiceIoC.Tests.Basics
         public void ContainerPassedToDelegateIsResolvingContainer()
         {
             Container passedContainer = null;
-            container.Register(c =>
+            container.Register(c => new ConcreteClass(),
+                factory => (c, n, t) =>
                 {
                     passedContainer = c;
                     return new ConcreteClass();

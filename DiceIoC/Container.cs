@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace DiceIoC
 {
@@ -21,31 +22,31 @@ namespace DiceIoC
             get { return factories.Keys.Select(k => new KeyValuePair<string, Type>(k.Name, k.Type)); }
         }
 
-        public Container Register<T>(string name, Func<Container, string, Type, T> factory,
+        public Container Register<T>(string name, Expression<Func<Container, string, Type, T>> factoryExpression,
                                      params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
                                          modifiers)
         {
             RegistrationKey key = MakeKey<T>(name);
-            Func<Container, string, Type, object> objFactory = (c, n, t) => (object) factory(c, n, t);
+            Func<Container, string, Type, object> objFactory = CastToObject(factoryExpression).Compile();
             factories[key] = modifiers.Aggregate(objFactory, (current, modifier) => modifier(current));
             return this;
         }
 
-        public Container Register<T>(Func<Container, string, Type, T> factory,
+        public Container Register<T>(Expression<Func<Container, string, Type, T>> factoryExpression,
                                      params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
                                          modifiers)
         {
-            return Register(null, factory, modifiers);
+            return Register(null, factoryExpression, modifiers);
         }
 
-        public Container Register<T>(string name, Func<Container, T> factory,
+        public Container Register<T>(string name, Expression<Func<Container, T>> factoryExpression,
                                      params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
                                          modifiers)
         {
-            return Register(name, (c, n, t) => factory(c), modifiers);
+            return Register(name, ConvertExpression(factoryExpression), modifiers);
         }
 
-        public Container Register<T>(Func<Container, T> factory,
+        public Container Register<T>(Expression<Func<Container, T>> factory,
                                      params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
                                          modifiers)
         {
@@ -115,6 +116,32 @@ namespace DiceIoC
             }
             result = null;
             return false;
+        }
+
+        private Expression<Func<Container, String, Type, T>> ConvertExpression<T>(
+            Expression<Func<Container, T>> originalExpression)
+        {
+            var c = Expression.Parameter(typeof (Container), "c");
+            var name = Expression.Parameter(typeof (string), "name");
+            var type = Expression.Parameter(typeof (Type), "resolvedType");
+
+            return Expression.Lambda<Func<Container, string, Type, T>>(
+                Expression.Invoke(originalExpression, c),
+                c, name, type);
+        }
+
+        private Expression<Func<Container, string, Type, Object>> CastToObject<T>(
+            Expression<Func<Container, string, Type, T>> originalExpression)
+        {
+            var c = Expression.Parameter(typeof(Container), "c");
+            var name = Expression.Parameter(typeof(string), "name");
+            var type = Expression.Parameter(typeof(Type), "resolvedType");
+
+            var cast = Expression.Convert(
+                Expression.Invoke(originalExpression, c, name, type), typeof (object));
+
+            return Expression.Lambda<Func<Container, string, Type, object>>(
+                cast, c, name, type);
         }
     }
 }
