@@ -22,33 +22,42 @@ namespace DiceIoC
             get { return factories.Keys.Select(k => new KeyValuePair<string, Type>(k.Name, k.Type)); }
         }
 
+        // TODO: do modifiers as expression rewriters instead of straight funcs
         public Container Register<T>(string name, Expression<Func<Container, string, Type, T>> factoryExpression,
-                                     params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
-                                         modifiers)
+            params Func<
+                Expression<Func<Container, string, Type, object>>, 
+                Expression<Func<Container, string, Type, object>>
+            >[] modifiers)
         {
             RegistrationKey key = MakeKey<T>(name);
-            Func<Container, string, Type, object> objFactory = CastToObject(factoryExpression).Compile();
-            factories[key] = modifiers.Aggregate(objFactory, (current, modifier) => modifier(current));
+            var objFactory = CastToObject(factoryExpression);
+            factories[key] = modifiers.Aggregate(objFactory, (current, modifier) => modifier(current)).Compile();
             return this;
         }
 
         public Container Register<T>(Expression<Func<Container, string, Type, T>> factoryExpression,
-                                     params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
-                                         modifiers)
+            params Func<
+                Expression<Func<Container, string, Type, object>>,
+                Expression<Func<Container, string, Type, object>>
+            >[] modifiers)
         {
             return Register(null, factoryExpression, modifiers);
         }
 
         public Container Register<T>(string name, Expression<Func<Container, T>> factoryExpression,
-                                     params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
-                                         modifiers)
+            params Func<
+                Expression<Func<Container, string, Type, object>>,
+                Expression<Func<Container, string, Type, object>>
+            >[] modifiers)
         {
             return Register(name, ConvertExpression(factoryExpression), modifiers);
         }
 
         public Container Register<T>(Expression<Func<Container, T>> factory,
-                                     params Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>>[]
-                                         modifiers)
+            params Func<
+                Expression<Func<Container, string, Type, object>>,
+                Expression<Func<Container, string, Type, object>>
+            >[] modifiers)
         {
             return Register(null, factory, modifiers);
         }

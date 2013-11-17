@@ -1,26 +1,55 @@
 ﻿using System;
+using System.Linq.Expressions;
 
 namespace DiceIoC
 {
-    public class Singleton
+    public class Singleton : ILifetime
     {
         private object value;
-        private Func<Container, string, Type, object> factory;
  
-        private Func<Container, string, Type, object> LifetimeModifier(Func<Container, string, Type, object> factory)
+        private Expression<Func<Container, string, Type, object>> LifetimeModifier(
+            Expression<Func<Container, string, Type, object>> factoryExpression)
         {
-            this.factory = factory;
-            return this.GetValue;
+            var c = Expression.Parameter(typeof(Container), "container");
+            var name = Expression.Parameter(typeof (string), "name");
+            var type = Expression.Parameter(typeof (Type), "type");
+            
+            var ltm = Expression.Constant(this, typeof (ILifetime));
+            var body = Expression.Coalesce(
+                Expression.Call(ltm, "GetValue", null, c, name, type),
+                Expression.Call(ltm, "SetValue", null,
+                    Expression.Invoke(factoryExpression, c, name, type),
+                    c, name, type));
+
+            var final = Expression.Lambda<Func<Container, string, Type, object>>(
+                body, c, name, type);
+            return final;
         }
 
-        private object GetValue(Container c, string name, Type t)
-        {
-            return value ?? (value = factory(c, name, t));
-        }
-
-        public static Func<Func<Container, string, Type, object>, Func<Container, string, Type, object>> Lifetime()
+        public static Func<Expression<Func<Container, string, Type, object>>, 
+            Expression<Func<Container, string, Type, object>>> Lifetime()
         {
             return new Singleton().LifetimeModifier;
+        }
+
+        public void Dispose()
+        {
+            if (value is IDisposable)
+            {
+                ((IDisposable) value).Dispose();
+                value = null;
+            }
+        }
+
+        object ILifetime.GetValue(Container c, string name, Type requestedType)
+        {
+            return value;
+        }
+
+        public object SetValue(object value, Container c, string name, Type requestedType)
+        {
+            this.value = value;
+            return value;
         }
     }
 }

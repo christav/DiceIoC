@@ -42,10 +42,7 @@ namespace DiceIoC.Tests.Basics
         {
             bool called = false;
             container.Register(c => new ConcreteClass(),
-                factory => (c, n, t) => {
-                    called = true;
-                    return factory(c, n, t);
-                });
+                Passthrough.Modifier((c, n, t) => { called = true; }));
 
             container.Resolve<ConcreteClass>();
             called.Should().BeTrue();
@@ -56,11 +53,9 @@ namespace DiceIoC.Tests.Basics
         {
             Container passedContainer = null;
             container.Register(c => new ConcreteClass(),
-                factory => (c, n, t) =>
-                {
+                Passthrough.Modifier((c, n, t) => {
                     passedContainer = c;
-                    return new ConcreteClass();
-                });
+                }));
 
             container.Resolve<ConcreteClass>();
             passedContainer.Should().BeSameAs(container);
@@ -72,12 +67,6 @@ namespace DiceIoC.Tests.Basics
             container.Register<ISimpleInterface>(c => new SimpleInterfaceImpl());
 
             container.Resolve<ISimpleInterface>().Should().BeOfType<SimpleInterfaceImpl>();
-        }
-
-        [Fact]
-        public void FactMethodName()
-        {
-            
         }
     }
 }
