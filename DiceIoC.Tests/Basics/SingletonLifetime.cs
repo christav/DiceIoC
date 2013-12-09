@@ -18,15 +18,17 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void CanRegisterWithSingleton()
         {
-            var container = new Container();
-            container.Register(c => new ConcreteClass(), Singleton.Lifetime());
+            var catalog = new Catalog();
+            catalog.Register(c => new ConcreteClass(), Singleton.Lifetime());
+            var container = catalog.CreateContainer();
         }
 
         [Fact]
         public void SingletonLifetimeReturnsSameInstance()
         {
-            var container = new Container();
-            container.Register(c => new ConcreteClass(), Singleton.Lifetime());
+            var container = new Catalog()
+                .Register(c => new ConcreteClass(), Singleton.Lifetime())
+                .CreateContainer();
 
             var o1 = container.Resolve<ConcreteClass>();
             var o2 = container.Resolve<ConcreteClass>();

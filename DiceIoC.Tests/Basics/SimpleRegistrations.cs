@@ -8,11 +8,11 @@ namespace DiceIoC.Tests.Basics
 {
     public class SimpleRegistrations : IDisposable
     {
-        private Container container;
+        private Catalog catalog;
 
         public SimpleRegistrations()
         {
-            container = new Container();
+            catalog = new Catalog();
         }
 
         public void Dispose()
@@ -22,28 +22,43 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void DefaultContainerHasNoRegistrations()
         {
-            container.Registrations.Count().Should().Be(0);
+            catalog.Registrations.Count().Should().Be(0);
+        }
+
+        [Fact]
+        public void CanCreateContainerFromCatalog()
+        {
+            var container = catalog.CreateContainer();
+            Assert.NotNull(container);
+        }
+        [Fact]
+        public void ContainerPointsToCatalog()
+        {
+            var container = catalog.CreateContainer();
+            Assert.Same(catalog, container.Catalog);
         }
 
         [Fact]
         public void ResolvingUnregisteredTypeShouldThrow()
         {
+            var container = catalog.CreateContainer();
             Assert.Throws<ArgumentException>(() => container.Resolve<SimpleRegistrations>());
         }
 
         [Fact]
         public void ResolvingRegisteredTypeSucceeds()
         {
-            container.Register(c => new ConcreteClass());
+            catalog.Register(c => new ConcreteClass());
         }
 
         [Fact]
         public void ResolvingInvokesRegisteredDelegate()
         {
             bool called = false;
-            container.Register(c => new ConcreteClass(),
+            catalog.Register(c => new ConcreteClass(),
                 Passthrough.Modifier((c, n, t) => { called = true; }));
 
+            var container = catalog.CreateContainer();
             container.Resolve<ConcreteClass>();
             called.Should().BeTrue();
         }
@@ -52,11 +67,12 @@ namespace DiceIoC.Tests.Basics
         public void ContainerPassedToDelegateIsResolvingContainer()
         {
             Container passedContainer = null;
-            container.Register(c => new ConcreteClass(),
+            catalog.Register(c => new ConcreteClass(),
                 Passthrough.Modifier((c, n, t) => {
                     passedContainer = c;
                 }));
 
+            var container = catalog.CreateContainer();
             container.Resolve<ConcreteClass>();
             passedContainer.Should().BeSameAs(container);
         }
@@ -64,8 +80,8 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void CanRegisterInterface()
         {
-            container.Register<ISimpleInterface>(c => new SimpleInterfaceImpl());
-
+            catalog.Register<ISimpleInterface>(c => new SimpleInterfaceImpl());
+            var container = catalog.CreateContainer();
             container.Resolve<ISimpleInterface>().Should().BeOfType<SimpleInterfaceImpl>();
         }
     }

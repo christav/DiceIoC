@@ -36,6 +36,7 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Catalog.cs" />
     <Compile Include="Container.cs" />
     <Compile Include="ILifetime.cs" />
     <Compile Include="Lifetime.cs" />

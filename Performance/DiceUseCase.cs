@@ -11,11 +11,11 @@ namespace Performance
     [Description("Dice")]
     class DiceUseCase : UseCase
     {
-        private static DiceIoC.Container container;
+        private readonly static DiceIoC.Container container;
  
         static DiceUseCase()
         {
-            container = new DiceIoC.Container()
+            var catalog = new Catalog()
                 .Register<IWebService>(c => new WebService(c.Resolve<IAuthenticator>(), c.Resolve<IStockQuote>()))
                 .Register<IAuthenticator>(
                     c => new Authenticator(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()))
@@ -24,6 +24,7 @@ namespace Performance
                 .Register<IDatabase>(c => new Database(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>()))
                 .Register<IErrorHandler>(c => new ErrorHandler(c.Resolve<ILogger>()))
                 .Register<ILogger>(c => new Logger(), Singleton.Lifetime());
+            container = catalog.CreateContainer();
         }
         public override void Run()
         {
@@ -35,19 +36,23 @@ namespace Performance
     [Description("DiceSingleton")]
     class DiceSingletonUseCase : UseCase
     {
-        private static DiceIoC.Container container;
+        private readonly static DiceIoC.Container container;
 
         static DiceSingletonUseCase()
         {
-            container = new DiceIoC.Container()
+            container = new Catalog()
                 .Register<IWebService>(c => new WebService(c.Resolve<IAuthenticator>(), c.Resolve<IStockQuote>()))
                 .Register<IAuthenticator>(
-                    c => new Authenticator(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()), Singleton.Lifetime())
+                    c => new Authenticator(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()),
+                    Singleton.Lifetime())
                 .Register<IStockQuote>(
-                    c => new StockQuote(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()), Singleton.Lifetime())
-                .Register<IDatabase>(c => new Database(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>()), Singleton.Lifetime())
+                    c => new StockQuote(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()),
+                    Singleton.Lifetime())
+                .Register<IDatabase>(c => new Database(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>()),
+                    Singleton.Lifetime())
                 .Register<IErrorHandler>(c => new ErrorHandler(c.Resolve<ILogger>()), Singleton.Lifetime())
-                .Register<ILogger>(c => new Logger(), Singleton.Lifetime());
+                .Register<ILogger>(c => new Logger(), Singleton.Lifetime())
+                .CreateContainer();
         }
         public override void Run()
         {

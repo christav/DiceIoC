@@ -8,16 +8,8 @@ namespace DiceIoC.Tests.ExpressionExperiments
 {
 
 
-    public class Expressions : IDisposable
+    public class Expressions
     {
-        public Expressions()
-        {
-        }
-
-        public void Dispose()
-        {
-        }
-
         [Fact]
         public void SpelunkIntoLambda()
         {
@@ -33,8 +25,7 @@ namespace DiceIoC.Tests.ExpressionExperiments
                     );
             var result = (Func<Container, String, Type, ConcreteClass>)wrapped.Compile();
 
-            var container = new Container();
-            var resultObj = result(container, "foo", typeof (ConcreteClass));
+            var resultObj = result(null, "foo", typeof (ConcreteClass));
 
             Assert.NotNull(resultObj);
             Assert.IsType<ConcreteClass>(resultObj);
