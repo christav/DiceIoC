@@ -17,7 +17,7 @@ namespace DiceIoC
     /// </summary>
     public class OptimizingVisitor : ExpressionVisitor
     {
-        private Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>  factories;
+        private readonly Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>  factories;
 
         public OptimizingVisitor(Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>> factories)
         {
@@ -36,18 +36,55 @@ namespace DiceIoC
                 .Select(m => m.GetGenericMethodDefinition())
                 .First();
 
-        private static bool IsResolveMethod(MethodInfo m)
+        private static bool IsResolveDefaultMethod(MethodInfo m)
         {
             return m.IsGenericMethod &&
-                   m.GetGenericMethodDefinition() == resolveWithNameMethod ||
                    m.GetGenericMethodDefinition() == resolveDefaultMethod;
+        }
+
+        private static bool IsResolveWithNameMethod(MethodInfo m)
+        {
+            return m.IsGenericMethod &&
+                   m.GetGenericMethodDefinition() == resolveWithNameMethod;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (!IsResolveMethod(node.Method)) return base.VisitMethodCall(node);
+            if (IsResolveDefaultMethod(node.Method)) return ReplaceResolveDefault(node);
+            if (IsResolveWithNameMethod(node.Method)) return ReplaceResolveWithName(node);
+            return base.VisitMethodCall(node);
+        }
 
-            // TODO: Implement transformation
+        private Expression ReplaceResolveDefault(MethodCallExpression node)
+        {
+            var containerParam = node.Object;
+            var nameExpression = Expression.Constant(null, typeof (string));
+            var typeToResolve = node.Method.GetGenericArguments()[0];
+            var typeExpression = Expression.Constant(typeToResolve, typeof (Type));
+
+            Expression actualFactory =
+                new OptimizingVisitor(factories).Visit(factories[new RegistrationKey(null, typeToResolve)]);
+
+            var cast = Expression.Convert(
+                Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);
+
+            return cast;
+        }
+
+        private Expression ReplaceResolveWithName(MethodCallExpression node)
+        {
+            var containerParam = node.Object;
+            var nameExpression = node.Arguments[0];
+            var typeToResolve = node.Method.GetGenericArguments()[0];
+            var typeExpression = Expression.Constant(typeToResolve, typeof(Type));
+
+            Expression actualFactory =
+                new OptimizingVisitor(factories).Visit(factories[new RegistrationKey(null, typeToResolve)]);
+
+            var cast = Expression.Convert(
+                Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);
+
+            return cast;
         }
     }
 }

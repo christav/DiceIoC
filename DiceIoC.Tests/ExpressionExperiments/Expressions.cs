@@ -49,7 +49,7 @@ namespace DiceIoC.Tests.ExpressionExperiments
         public void CanVisitAndFindResolveCall()
         {
             Expression<Func<Container, string, Type, object>> expr =
-                (container, name, t) => new ConcreteClassWithDependencies(container.Resolve<ISimpleInterface>());
+                (container, name, t) => new ConcreteClassWithDependencies(container.Resolve<ISimpleInterface>("withname"));
 
             var visitor = new WalkingVisitor();
             visitor.Visit(expr);
