@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using FluentAssertions;
 using Xunit;
 using System.Linq.Expressions;
@@ -40,6 +43,42 @@ namespace DiceIoC.Tests.ExpressionExperiments
 
             factory.Body.NodeType.Should().Be(ExpressionType.Convert);
 
+        }
+
+        [Fact]
+        public void CanVisitAndFindResolveCall()
+        {
+            Expression<Func<Container, string, Type, object>> expr =
+                (container, name, t) => new ConcreteClassWithDependencies(container.Resolve<ISimpleInterface>());
+
+            var visitor = new WalkingVisitor();
+            visitor.Visit(expr);
+            Assert.True(visitor.found);
+        }
+    }
+
+    class WalkingVisitor : ExpressionVisitor
+    {
+        private static List<MethodInfo> resolveMethods = typeof (Container).GetMethods().Where(m => m.Name == "Resolve").ToList();
+        public bool found = false;
+
+        public override Expression Visit(Expression node)
+        {
+            return base.Visit(node);
+        }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            return base.VisitNew(node);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            if (node.Method.IsGenericMethod && resolveMethods.Contains(node.Method.GetGenericMethodDefinition()))
+            {
+                found = true;
+            }
+            return base.VisitMethodCall(node);
         }
     }
 }

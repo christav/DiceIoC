@@ -2,7 +2,7 @@
 
 namespace DiceIoC
 {
-    struct RegistrationKey
+    public struct RegistrationKey
     {
         public readonly string Name;
         public readonly Type Type;
