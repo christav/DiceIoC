@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using DiceIoC;
 using Domain;
 
@@ -15,7 +11,7 @@ namespace Performance
  
         static DiceUseCase()
         {
-            var catalog = new Catalog()
+            container = new Catalog()
                 .Register<IWebService>(c => new WebService(c.Resolve<IAuthenticator>(), c.Resolve<IStockQuote>()))
                 .Register<IAuthenticator>(
                     c => new Authenticator(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()))
@@ -23,8 +19,8 @@ namespace Performance
                     c => new StockQuote(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()))
                 .Register<IDatabase>(c => new Database(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>()))
                 .Register<IErrorHandler>(c => new ErrorHandler(c.Resolve<ILogger>()))
-                .Register<ILogger>(c => new Logger(), Singleton.Lifetime());
-            container = catalog.CreateContainer();
+                .Register<ILogger>(c => new Logger(), Singleton.Lifetime())
+                .CreateContainer();
         }
         public override void Run()
         {

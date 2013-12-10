@@ -18,7 +18,7 @@ namespace Performance
 						logger
 					),
 					new Database(
-						new Logger(),
+						logger,
 						new ErrorHandler(
 							logger
 						)

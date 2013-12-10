@@ -24,6 +24,7 @@ namespace Performance
         private static readonly List<UseCaseInfo> useCases = new List<UseCaseInfo>
         {
             new PlainUseCase(),
+            new ActivatorUseCase(),
             new UnityUseCase(),
             new DiceUseCase(),
             new MunqUseCase(),

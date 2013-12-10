@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActivatorUseCase.cs" />
     <Compile Include="AutofacSingletoncUseCase.cs" />
     <Compile Include="AutofacUseCase.cs" />
     <Compile Include="DiceUseCase.cs" />
