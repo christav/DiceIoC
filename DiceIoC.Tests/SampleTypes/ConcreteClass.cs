@@ -1,6 +1,14 @@
-﻿namespace DiceIoC.Tests.SampleTypes
+﻿using System;
+
+namespace DiceIoC.Tests.SampleTypes
 {
-    class ConcreteClass
+    class ConcreteClass : IDisposable
     {
+        public bool Disposed = false;
+
+        public void Dispose()
+        {
+            Disposed = true;
+        }
     }
 }
