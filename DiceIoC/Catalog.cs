@@ -27,16 +27,24 @@ namespace DiceIoC
             get { return factories.Keys.Select(k => new KeyValuePair<string, Type>(k.Name, k.Type)); }
         }
 
-        public Catalog Register<T>(string name, Expression<Func<Container, string, Type, T>> factoryExpression,
+        private Catalog RegisterFactory<T>(string name, Expression<Func<Container, string, Type, object>> factoryExpression,
             params Func<
                 Expression<Func<Container, string, Type, object>>,
                 Expression<Func<Container, string, Type, object>>
             >[] modifiers)
         {
             RegistrationKey key = MakeKey<T>(name);
-            var objFactory = CastToObject(factoryExpression);
-            factories[key] = modifiers.Aggregate(objFactory, (current, modifier) => modifier(current));
+            factories[key] = modifiers.Aggregate(factoryExpression, (current, modifier) => modifier(current));
             return this;
+        }
+
+        public Catalog Register<T>(string name, Expression<Func<Container, string, Type, T>> factoryExpression,
+            params Func<
+                Expression<Func<Container, string, Type, object>>,
+                Expression<Func<Container, string, Type, object>>
+                >[] modifiers)
+        {
+            return RegisterFactory<T>(name, CastToObject(factoryExpression), modifiers);
         }
 
         public Catalog Register<T>(Expression<Func<Container, string, Type, T>> factoryExpression,
@@ -45,7 +53,7 @@ namespace DiceIoC
                 Expression<Func<Container, string, Type, object>>
             >[] modifiers)
         {
-            return Register(null, factoryExpression, modifiers);
+            return RegisterFactory<T>(null, CastToObject(factoryExpression), modifiers);
         }
 
         public Catalog Register<T>(string name, Expression<Func<Container, T>> factoryExpression,
@@ -54,19 +62,16 @@ namespace DiceIoC
                 Expression<Func<Container, string, Type, object>>
             >[] modifiers)
         {
-            RegistrationKey key = MakeKey<T>(name);
-            var objFactory = CastToObject(factoryExpression);
-            factories[key] = modifiers.Aggregate(objFactory, (current, modifier) => modifier(current));
-            return this;
+            return RegisterFactory<T>(name, CastToObject(factoryExpression), modifiers);
         }
 
-        public Catalog Register<T>(Expression<Func<Container, T>> factory,
+        public Catalog Register<T>(Expression<Func<Container, T>> factoryExpression,
             params Func<
                 Expression<Func<Container, string, Type, object>>,
                 Expression<Func<Container, string, Type, object>>
             >[] modifiers)
         {
-            return Register(null, factory, modifiers);
+            return RegisterFactory<T>(null, CastToObject(factoryExpression), modifiers);
         }
 
         public Container CreateContainer()
