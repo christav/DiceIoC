@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace DiceIoC
 {
@@ -15,11 +14,11 @@ namespace DiceIoC
     /// that, with the goal of eliminating dictionary lookups at
     /// resolve time.
     /// </summary>
-    public class OptimizingVisitor : ExpressionVisitor
+    public class ResolveCallInliningVisitor : ExpressionVisitor
     {
         private readonly Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>  factories;
 
-        public OptimizingVisitor(Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>> factories)
+        public ResolveCallInliningVisitor(Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>> factories)
         {
             this.factories = factories;
         }
@@ -63,7 +62,7 @@ namespace DiceIoC
             var typeExpression = Expression.Constant(typeToResolve, typeof (Type));
 
             Expression actualFactory =
-                new OptimizingVisitor(factories).Visit(factories[new RegistrationKey(null, typeToResolve)]);
+                new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(null, typeToResolve)]);
 
             var cast = Expression.Convert(
                 Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);
@@ -78,8 +77,20 @@ namespace DiceIoC
             var typeToResolve = node.Method.GetGenericArguments()[0];
             var typeExpression = Expression.Constant(typeToResolve, typeof(Type));
 
+            // We need to compile and execute the name expression to get the actual value out
+            string name;
+
+            if (nameExpression.NodeType == ExpressionType.Constant)
+            {
+                name = (string)((ConstantExpression) nameExpression).Value;
+            }
+            else
+            {
+                throw new InvalidOperationException("Name expression must be constant");
+            }
+
             Expression actualFactory =
-                new OptimizingVisitor(factories).Visit(factories[new RegistrationKey(null, typeToResolve)]);
+                new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(name, typeToResolve)]);
 
             var cast = Expression.Convert(
                 Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);

@@ -87,7 +87,7 @@ namespace DiceIoC
 
             foreach (var item in this.factories)
             {
-                var optimized = (Expression<Func<Container, string, Type, object>>)(new OptimizingVisitor(this.factories).Visit(item.Value));
+                var optimized = (Expression<Func<Container, string, Type, object>>)(new ResolveCallInliningVisitor(this.factories).Visit(item.Value));
                 factories[item.Key] = optimized.Compile();
             }
             return factories;

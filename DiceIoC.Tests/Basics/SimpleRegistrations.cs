@@ -29,13 +29,13 @@ namespace DiceIoC.Tests.Basics
         public void CanCreateContainerFromCatalog()
         {
             var container = catalog.CreateContainer();
-            Assert.NotNull(container);
+            container.Should().NotBeNull();
         }
         [Fact]
         public void ContainerPointsToCatalog()
         {
             var container = catalog.CreateContainer();
-            Assert.Same(catalog, container.Catalog);
+            container.Catalog.Should().BeSameAs(catalog);
         }
 
         [Fact]
@@ -83,6 +83,16 @@ namespace DiceIoC.Tests.Basics
             catalog.Register<ISimpleInterface>(c => new SimpleInterfaceImpl());
             var container = catalog.CreateContainer();
             container.Resolve<ISimpleInterface>().Should().BeOfType<SimpleInterfaceImpl>();
+        }
+
+        [Fact]
+        public void CanRegisterWithName()
+        {
+            catalog.Register<ISimpleInterface>("a name", c => new SimpleInterfaceImpl());
+            catalog.Register<ConcreteClassWithDependencies>("another name",
+                c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>("a name")));
+            var container = catalog.CreateContainer();
+            container.Resolve<ConcreteClassWithDependencies>("another name").Should().BeOfType<ConcreteClassWithDependencies>();
         }
     }
 }

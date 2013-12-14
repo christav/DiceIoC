@@ -62,16 +62,6 @@ namespace DiceIoC.Tests.ExpressionExperiments
         private static List<MethodInfo> resolveMethods = typeof (Container).GetMethods().Where(m => m.Name == "Resolve").ToList();
         public bool found = false;
 
-        public override Expression Visit(Expression node)
-        {
-            return base.Visit(node);
-        }
-
-        protected override Expression VisitNew(NewExpression node)
-        {
-            return base.VisitNew(node);
-        }
-
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (node.Method.IsGenericMethod && resolveMethods.Contains(node.Method.GetGenericMethodDefinition()))
