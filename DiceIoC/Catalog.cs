@@ -54,7 +54,10 @@ namespace DiceIoC
                 Expression<Func<Container, string, Type, object>>
             >[] modifiers)
         {
-            return Register(name, ConvertExpression(factoryExpression), modifiers);
+            RegistrationKey key = MakeKey<T>(name);
+            var objFactory = CastToObject(factoryExpression);
+            factories[key] = modifiers.Aggregate(objFactory, (current, modifier) => modifier(current));
+            return this;
         }
 
         public Catalog Register<T>(Expression<Func<Container, T>> factory,
@@ -98,19 +101,7 @@ namespace DiceIoC
             return new RegistrationKey(name, typeof(T));
         }
 
-        private Expression<Func<Container, String, Type, T>> ConvertExpression<T>(
-            Expression<Func<Container, T>> originalExpression)
-        {
-            var c = Expression.Parameter(typeof(Container), "c");
-            var name = Expression.Parameter(typeof(string), "name");
-            var type = Expression.Parameter(typeof(Type), "resolvedType");
-
-            return Expression.Lambda<Func<Container, string, Type, T>>(
-                Expression.Invoke(originalExpression, c),
-                c, name, type);
-        }
-
-        private Expression<Func<Container, string, Type, Object>> CastToObject<T>(
+        private Expression<Func<Container, string, Type, object>> CastToObject<T>(
             Expression<Func<Container, string, Type, T>> originalExpression)
         {
             var c = Expression.Parameter(typeof(Container), "c");
@@ -124,5 +115,18 @@ namespace DiceIoC
                 cast, c, name, type);
         }
 
+        private Expression<Func<Container, string, Type, object>> CastToObject<T>(
+            Expression<Func<Container, T>> originalExpression)
+        {
+            var c = Expression.Parameter(typeof(Container), "c");
+            var name = Expression.Parameter(typeof(string), "name");
+            var type = Expression.Parameter(typeof(Type), "resolvedType");
+
+            var cast = Expression.Convert(
+                Expression.Invoke(originalExpression, c), typeof(object));
+
+            return Expression.Lambda<Func<Container, string, Type, object>>(
+                cast, c, name, type);
+        }
     }
 }
