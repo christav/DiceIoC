@@ -31,12 +31,14 @@ namespace Performance
             new MunqAutowireUseCase(),
             new AutofacUseCase(),
             new StructureMapUseCase(),
+            new CastleWindsorUseCase(),
             new PlainSingletonUseCase(),
             new UnitySingletonUseCase(),
             new DiceSingletonUseCase(),
             new MunqSingletonUseCase(),
             new AutofacSingletoncUseCase(),
             new StructureMapSingletonUseCase(),
+            new CastleWindsorSingletonUseCase(),
         };
 
         private static void Main(string[] args)

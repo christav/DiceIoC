@@ -40,7 +40,8 @@ namespace Performance
         {
 
             container = new Catalog()
-                .Register<IWebService>(c => new WebService(c.Resolve<IAuthenticator>(), c.Resolve<IStockQuote>()))
+                .Register<IWebService>(c => new WebService(c.Resolve<IAuthenticator>(), c.Resolve<IStockQuote>()),
+                    singleton)
                 .Register<IAuthenticator>(
                     c => new Authenticator(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()),
                     singleton)

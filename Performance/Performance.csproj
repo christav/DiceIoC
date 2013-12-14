@@ -37,6 +37,12 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.1.1\lib\net40\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="Castle.Core">
+      <HintPath>..\packages\Castle.Core.3.2.2\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor">
+      <HintPath>..\packages\Castle.Windsor.3.2.1\lib\net45\Castle.Windsor.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.Unity">
       <HintPath>..\packages\Unity.3.0.1304.0\lib\Net45\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
@@ -61,6 +67,7 @@
     <Compile Include="ActivatorUseCase.cs" />
     <Compile Include="AutofacSingletoncUseCase.cs" />
     <Compile Include="AutofacUseCase.cs" />
+    <Compile Include="CastleWindsorUseCase.cs" />
     <Compile Include="DiceUseCase.cs" />
     <Compile Include="Domain\Authenticator.cs" />
     <Compile Include="Domain\Database.cs" />
