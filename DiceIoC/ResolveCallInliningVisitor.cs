@@ -83,19 +83,17 @@ namespace DiceIoC
             if (nameExpression.NodeType == ExpressionType.Constant)
             {
                 name = (string)((ConstantExpression) nameExpression).Value;
+                Expression actualFactory =
+                    new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(name, typeToResolve)]);
+
+                var cast = Expression.Convert(
+                    Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);
+
+                return cast;
             }
-            else
-            {
-                throw new InvalidOperationException("Name expression must be constant");
-            }
-
-            Expression actualFactory =
-                new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(name, typeToResolve)]);
-
-            var cast = Expression.Convert(
-                Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);
-
-            return cast;
+            // If the name's not a constant, we can't optimize, but we can still
+            // run the original expression.
+            return node;
         }
     }
 }

@@ -94,5 +94,18 @@ namespace DiceIoC.Tests.Basics
             var container = catalog.CreateContainer();
             container.Resolve<ConcreteClassWithDependencies>("another name").Should().BeOfType<ConcreteClassWithDependencies>();
         }
+
+        [Fact]
+        public void CanRegisterWithDynamicName()
+        {
+            catalog.Register<ISimpleInterface>("a", c => new SimpleInterfaceImpl());
+
+            Func<string> getName = () => "a";
+
+            catalog.Register<ConcreteClassWithDependencies>("another name",
+                c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>(getName())));
+            var container = catalog.CreateContainer();
+            container.Resolve<ConcreteClassWithDependencies>("another name").Should().BeOfType<ConcreteClassWithDependencies>();
+        }
     }
 }
