@@ -77,12 +77,9 @@ namespace DiceIoC
             var typeToResolve = node.Method.GetGenericArguments()[0];
             var typeExpression = Expression.Constant(typeToResolve, typeof(Type));
 
-            // We need to compile and execute the name expression to get the actual value out
-            string name;
-
             if (nameExpression.NodeType == ExpressionType.Constant)
             {
-                name = (string)((ConstantExpression) nameExpression).Value;
+                string name = (string)((ConstantExpression) nameExpression).Value;
                 Expression actualFactory =
                     new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(name, typeToResolve)]);
 
