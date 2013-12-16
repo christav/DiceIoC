@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="Catalog.cs" />
     <Compile Include="Container.cs" />
+    <Compile Include="GenericParameterMarkerTypes.cs" />
     <Compile Include="ILifetime.cs" />
     <Compile Include="Lifetime.cs" />
     <Compile Include="LifetimeContainer.cs" />
