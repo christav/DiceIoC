@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace DiceIoC
 {
@@ -9,6 +8,7 @@ namespace DiceIoC
     {
         private readonly Dictionary<RegistrationKey, Func<Container, string, Type, object>> factories;
         private readonly Catalog catalog;
+        private readonly object factoriesLock = new object();
 
         internal Container(Catalog catalog, Dictionary<RegistrationKey, Func<Container, string, Type, object>> factories)
         {
@@ -53,7 +53,10 @@ namespace DiceIoC
 
         public IEnumerable<T> ResolveAll<T>()
         {
-            return factories.Keys.Where(k => k.Type == typeof (T)).Select(key => Resolve<T>(key.Name));
+            lock (factoriesLock)
+            {
+                return factories.Keys.Where(k => k.Type == typeof (T)).Select(key => Resolve<T>(key.Name));
+            }
         }
 
         private RegistrationKey MakeKey<T>(string name)
@@ -64,13 +67,17 @@ namespace DiceIoC
         private bool TryResolve(RegistrationKey key, Container c, out object result)
         {
             Func<Container, string, Type, object> factory;
-            if (factories.TryGetValue(key, out factory))
+            lock (factoriesLock)
             {
-                result = factory(c, key.Name, key.Type);
-                return true;
+                bool found = factories.TryGetValue(key, out factory);
+                if (!found)
+                {
+                    result = null;
+                    return false;
+                }
             }
-            result = null;
-            return false;
+            result = factory(c, key.Name, key.Type);
+            return true;
         }
     }
 }
