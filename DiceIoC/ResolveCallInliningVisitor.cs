@@ -62,7 +62,7 @@ namespace DiceIoC
             var typeExpression = Expression.Constant(typeToResolve, typeof (Type));
 
             Expression actualFactory =
-                new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(null, typeToResolve)]);
+                new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(typeToResolve, null)]);
 
             var cast = Expression.Convert(
                 Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);
@@ -81,7 +81,7 @@ namespace DiceIoC
             {
                 string name = (string)((ConstantExpression) nameExpression).Value;
                 Expression actualFactory =
-                    new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(name, typeToResolve)]);
+                    new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(typeToResolve, name)]);
 
                 var cast = Expression.Convert(
                     Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);

@@ -26,7 +26,7 @@ namespace DiceIoC.Tests.Basics
         public void OptimizingExpressionReplacesDefaultResolves()
         {
             var factories = new Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>();
-            factories[new RegistrationKey(null, typeof (ISimpleInterface))] = (c, n, t) => new SimpleInterfaceImpl();
+            factories[new RegistrationKey(typeof (ISimpleInterface), null)] = (c, n, t) => new SimpleInterfaceImpl();
 
             Expression<Func<Container, string, Type, ConcreteClassWithDependencies>> e = 
                 (c, n, t) => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());
@@ -49,7 +49,7 @@ namespace DiceIoC.Tests.Basics
         public void ExpressionsResolvingWithNameGetReplaced()
         {
             var factories = new Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>();
-            factories[new RegistrationKey("named", typeof(ISimpleInterface))] = (c, n, t) => new SimpleInterfaceImpl();
+            factories[new RegistrationKey(typeof(ISimpleInterface), "named")] = (c, n, t) => new SimpleInterfaceImpl();
 
             Expression<Func<Container, string, Type, ConcreteClassWithDependencies>> e =
                 (c, n, t) => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>("named"));
@@ -72,7 +72,7 @@ namespace DiceIoC.Tests.Basics
         public void OptimizedExpressionCanBeCompiled()
         {
             var factories = new Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>();
-            factories[new RegistrationKey(null, typeof(ISimpleInterface))] = (c, n, t) => new SimpleInterfaceImpl();
+            factories[new RegistrationKey(typeof(ISimpleInterface), null)] = (c, n, t) => new SimpleInterfaceImpl();
 
             Expression<Func<Container, string, Type, object>> e =
                 (c, n, t) => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());

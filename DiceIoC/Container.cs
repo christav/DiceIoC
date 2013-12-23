@@ -38,7 +38,7 @@ namespace DiceIoC
         {
             resolved = default(T);
             object result;
-            bool succeeded = TryResolve(MakeKey<T>(name), this, out result);
+            bool succeeded = TryResolve(RegistrationKey.For<T>(name), this, out result);
             if (succeeded)
             {
                 resolved = (T) result;
@@ -57,11 +57,6 @@ namespace DiceIoC
             {
                 return factories.Keys.Where(k => k.Type == typeof (T)).Select(key => Resolve<T>(key.Name));
             }
-        }
-
-        private RegistrationKey MakeKey<T>(string name)
-        {
-            return new RegistrationKey(name, typeof (T));
         }
 
         private bool TryResolve(RegistrationKey key, Container c, out object result)

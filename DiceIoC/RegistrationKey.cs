@@ -7,7 +7,7 @@ namespace DiceIoC
         public readonly string Name;
         public readonly Type Type;
 
-        public RegistrationKey(string name, Type type)
+        public RegistrationKey(Type type, string name)
         {
             Name = name;
             Type = type;
@@ -27,6 +27,16 @@ namespace DiceIoC
         public override int GetHashCode()
         {
             return Type.GetHashCode();
+        }
+
+        public static RegistrationKey For<T>()
+        {
+            return new RegistrationKey(typeof (T), null);
+        }
+
+        public static RegistrationKey For<T>(string name)
+        {
+            return new RegistrationKey(typeof (T), name);
         }
     }
 }

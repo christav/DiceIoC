@@ -33,7 +33,7 @@ namespace DiceIoC
                 Expression<Func<Container, string, Type, object>>
             >[] modifiers)
         {
-            RegistrationKey key = MakeKey(serviceType, name);
+            var key = new RegistrationKey(serviceType, name);
             factories[key] = modifiers.Aggregate(factoryExpression, (current, modifier) => modifier(current));
             return this;
         }
@@ -99,16 +99,6 @@ namespace DiceIoC
                 factories[item.Key] = optimized.Compile();
             }
             return factories;
-        }
-
-        private RegistrationKey MakeKey<T>(string name)
-        {
-            return new RegistrationKey(name, typeof(T));
-        }
-
-        private RegistrationKey MakeKey(Type t, string name)
-        {
-            return new RegistrationKey(name, t);
         }
 
         private Expression<Func<Container, string, Type, object>> CastToObject<T>(
