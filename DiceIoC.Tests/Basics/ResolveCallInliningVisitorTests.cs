@@ -13,8 +13,8 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void OptimizingExpressionsWithoutResolveReturnsOriginalExpression()
         {
-            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>();
-            Expression<Func<Container, string, Type, ConcreteClass>> e = (c, n, t) => new ConcreteClass();
+            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
+            Expression<Func<Container, ConcreteClass>> e = c => new ConcreteClass();
 
             var visitor = new ResolveCallInliningVisitor(factories);
             var e2 = visitor.Visit(e);
@@ -25,11 +25,11 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void OptimizingExpressionReplacesDefaultResolves()
         {
-            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>();
-            factories[new RegistrationKey(typeof (ISimpleInterface), null)] = (c, n, t) => new SimpleInterfaceImpl();
+            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
+            factories[new RegistrationKey(typeof (ISimpleInterface), null)] = c => new SimpleInterfaceImpl();
 
-            Expression<Func<Container, string, Type, ConcreteClassWithDependencies>> e = 
-                (c, n, t) => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());
+            Expression<Func<Container, ConcreteClassWithDependencies>> e = 
+                c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());
 
             var walker = new WalkingVisitor();
             walker.Visit(e);
@@ -48,11 +48,11 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void ExpressionsResolvingWithNameGetReplaced()
         {
-            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>();
-            factories[new RegistrationKey(typeof(ISimpleInterface), "named")] = (c, n, t) => new SimpleInterfaceImpl();
+            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
+            factories[new RegistrationKey(typeof(ISimpleInterface), "named")] = c => new SimpleInterfaceImpl();
 
-            Expression<Func<Container, string, Type, ConcreteClassWithDependencies>> e =
-                (c, n, t) => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>("named"));
+            Expression<Func<Container, ConcreteClassWithDependencies>> e =
+                c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>("named"));
 
             var walker = new WalkingVisitor();
             walker.Visit(e);
@@ -71,11 +71,11 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void OptimizedExpressionCanBeCompiled()
         {
-            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>();
-            factories[new RegistrationKey(typeof(ISimpleInterface), null)] = (c, n, t) => new SimpleInterfaceImpl();
+            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
+            factories[new RegistrationKey(typeof(ISimpleInterface), null)] = c => new SimpleInterfaceImpl();
 
-            Expression<Func<Container, string, Type, object>> e =
-                (c, n, t) => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());
+            Expression<Func<Container, object>> e =
+                c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());
 
             var visitor = new ResolveCallInliningVisitor(factories);
             var e2 = visitor.Visit(e);

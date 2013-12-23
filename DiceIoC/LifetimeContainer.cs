@@ -53,18 +53,18 @@ namespace DiceIoC
                 }
             }
 
-            public override object GetValue(Container c, string name, Type requestedType)
+            public override object GetValue(Container c)
             {
                 return value;
             }
 
-            public override object SetValue(object value, Container c, string name, Type requestedType)
+            public override object SetValue(object value, Container c)
             {
                 return this.value = value;
             }
 
-            public new Func<Expression<Func<Container, string, Type, object>>,
-                Expression<Func<Container, string, Type, object>>> LifetimeModifier
+            public new Func<Expression<Func<Container, object>>,
+                Expression<Func<Container,object>>> LifetimeModifier
             {
                 get { return base.LifetimeModifier; }
             }
@@ -78,8 +78,8 @@ namespace DiceIoC
             }
         }
 
-        private Func<Expression<Func<Container, string, Type, object>>,
-            Expression<Func<Container, string, Type, object>>> Lifetime
+        private Func<Expression<Func<Container, object>>,
+            Expression<Func<Container, object>>> Lifetime
         {
             get
             {
@@ -88,7 +88,7 @@ namespace DiceIoC
         }
 
         public static implicit operator
-            Func<Expression<Func<Container, string, Type, object>>, Expression<Func<Container, string, Type, object>>>(
+            Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>(
             LifetimeContainer lifetime)
         {
             return lifetime.Lifetime;

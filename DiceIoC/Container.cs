@@ -6,11 +6,11 @@ namespace DiceIoC
 {
     public class Container
     {
-        private readonly Dictionary<RegistrationKey, Func<Container, string, Type, object>> factories;
+        private readonly Dictionary<RegistrationKey, Func<Container, object>> factories;
         private readonly Catalog catalog;
         private readonly object factoriesLock = new object();
 
-        internal Container(Catalog catalog, Dictionary<RegistrationKey, Func<Container, string, Type, object>> factories)
+        internal Container(Catalog catalog, Dictionary<RegistrationKey, Func<Container, object>> factories)
         {
             this.catalog = catalog;
             this.factories = factories;
@@ -61,7 +61,7 @@ namespace DiceIoC
 
         private bool TryResolve(RegistrationKey key, Container c, out object result)
         {
-            Func<Container, string, Type, object> factory;
+            Func<Container, object> factory;
             lock (factoriesLock)
             {
                 bool found = factories.TryGetValue(key, out factory);
@@ -71,7 +71,7 @@ namespace DiceIoC
                     return false;
                 }
             }
-            result = factory(c, key.Name, key.Type);
+            result = factory(c);
             return true;
         }
     }

@@ -16,9 +16,9 @@ namespace DiceIoC
     /// </summary>
     public class ResolveCallInliningVisitor : ExpressionVisitor
     {
-        private readonly Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>>  factories;
+        private readonly Dictionary<RegistrationKey, Expression<Func<Container, object>>>  factories;
 
-        public ResolveCallInliningVisitor(Dictionary<RegistrationKey, Expression<Func<Container, string, Type, object>>> factories)
+        public ResolveCallInliningVisitor(Dictionary<RegistrationKey, Expression<Func<Container, object>>> factories)
         {
             this.factories = factories;
         }
@@ -57,15 +57,13 @@ namespace DiceIoC
         private Expression ReplaceResolveDefault(MethodCallExpression node)
         {
             var containerParam = node.Object;
-            var nameExpression = Expression.Constant(null, typeof (string));
             var typeToResolve = node.Method.GetGenericArguments()[0];
-            var typeExpression = Expression.Constant(typeToResolve, typeof (Type));
 
             Expression actualFactory =
                 new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(typeToResolve, null)]);
 
             var cast = Expression.Convert(
-                Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);
+                Expression.Invoke(actualFactory, containerParam), typeToResolve);
 
             return cast;
         }
@@ -75,7 +73,6 @@ namespace DiceIoC
             var containerParam = node.Object;
             var nameExpression = node.Arguments[0];
             var typeToResolve = node.Method.GetGenericArguments()[0];
-            var typeExpression = Expression.Constant(typeToResolve, typeof(Type));
 
             if (nameExpression.NodeType == ExpressionType.Constant)
             {
@@ -84,7 +81,7 @@ namespace DiceIoC
                     new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(typeToResolve, name)]);
 
                 var cast = Expression.Convert(
-                    Expression.Invoke(actualFactory, containerParam, nameExpression, typeExpression), typeToResolve);
+                    Expression.Invoke(actualFactory, containerParam), typeToResolve);
 
                 return cast;
             }

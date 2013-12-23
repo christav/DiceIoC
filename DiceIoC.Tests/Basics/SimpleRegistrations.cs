@@ -56,7 +56,7 @@ namespace DiceIoC.Tests.Basics
         {
             bool called = false;
             catalog.Register(c => new ConcreteClass(),
-                Passthrough.Modifier((c, n, t) => { called = true; }));
+                Passthrough.Modifier(c => { called = true; }));
 
             var container = catalog.CreateContainer();
             container.Resolve<ConcreteClass>();
@@ -68,7 +68,7 @@ namespace DiceIoC.Tests.Basics
         {
             Container passedContainer = null;
             catalog.Register(c => new ConcreteClass(),
-                Passthrough.Modifier((c, n, t) => {
+                Passthrough.Modifier(c => {
                     passedContainer = c;
                 }));
 
