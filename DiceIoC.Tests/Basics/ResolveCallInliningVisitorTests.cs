@@ -80,8 +80,8 @@ namespace DiceIoC.Tests.Basics
             var visitor = new ResolveCallInliningVisitor(factories);
             var e2 = visitor.Visit(e);
 
-            var factory = ((Expression<Func<Container, string, Type, object>>) e2).Compile();
-            object result = factory(null, null, typeof (ConcreteClassWithDependencies));
+            var factory = ((Expression<Func<Container,object>>) e2).Compile();
+            object result = factory(null);
 
             result.Should().NotBeNull();
             result.Should().BeOfType<ConcreteClassWithDependencies>();
