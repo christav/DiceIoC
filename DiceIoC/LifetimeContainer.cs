@@ -35,7 +35,7 @@ namespace DiceIoC
 
         // An instance of this lifetime object manages
         // each of the contained objects
-        private class ContainedLifetime : Lifetime, IDisposable
+        private class ContainedLifetime : SynchronizedLifetime, IDisposable
         {
             private object value;
 
@@ -61,12 +61,6 @@ namespace DiceIoC
             public override object SetValue(object value, Container c)
             {
                 return this.value = value;
-            }
-
-            public new Func<Expression<Func<Container, object>>,
-                Expression<Func<Container,object>>> LifetimeModifier
-            {
-                get { return base.LifetimeModifier; }
             }
         }
 
