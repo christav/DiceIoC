@@ -58,9 +58,9 @@ namespace DiceIoC
                 return value;
             }
 
-            public override object SetValue(object value, Container c)
+            public override object SetValue(object newValue, Container c)
             {
-                return this.value = value;
+                return (value = newValue);
             }
         }
 

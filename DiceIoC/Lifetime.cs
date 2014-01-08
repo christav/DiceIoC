@@ -7,6 +7,9 @@ namespace DiceIoC
     /// Base class for lifetimes that handles the details of
     /// the expression tree munging so lifetime implementors
     /// can concentrate on the details of lifetime storage.
+    /// 
+    /// Locking is explicitly not implemented (the Enter method
+    /// is a noop).
     /// </summary>
     public abstract class Lifetime : ILifetime
     {
@@ -16,6 +19,7 @@ namespace DiceIoC
             {
             }
         }
+
         public virtual IDisposable Enter()
         {
             return new NoopDispose();

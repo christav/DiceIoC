@@ -2,6 +2,11 @@
 
 namespace DiceIoC
 {
+    /// <summary>
+    /// Core interface for simplified implementation of lifetimes.
+    /// Not required, but makes the job easier (less expression munging
+    /// required).
+    /// </summary>
     public interface ILifetime
     {
         /// <summary>
