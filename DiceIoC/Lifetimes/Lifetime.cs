@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 
-namespace DiceIoC
+namespace DiceIoC.Lifetimes
 {
     /// <summary>
     /// Base class for lifetimes that handles the details of

@@ -39,14 +39,14 @@
     <Compile Include="Catalog.cs" />
     <Compile Include="Container.cs" />
     <Compile Include="GenericParameterMarkerTypes.cs" />
-    <Compile Include="ILifetime.cs" />
-    <Compile Include="Lifetime.cs" />
     <Compile Include="LifetimeContainer.cs" />
+    <Compile Include="Lifetimes\ILifetime.cs" />
+    <Compile Include="Lifetimes\Lifetime.cs" />
+    <Compile Include="Lifetimes\SynchronizedLifetime.cs" />
     <Compile Include="ResolveCallInliningVisitor.cs" />
     <Compile Include="Passthrough.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegistrationKey.cs" />
-    <Compile Include="SynchronizedLifetime.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DiceIoC
+namespace DiceIoC.Lifetimes
 {
     /// <summary>
     /// Core interface for simplified implementation of lifetimes.

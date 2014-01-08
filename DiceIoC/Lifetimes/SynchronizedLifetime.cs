@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace DiceIoC
+namespace DiceIoC.Lifetimes
 {
     /// <summary>
     /// A base class for lifetimes that
