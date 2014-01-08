@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace DiceIoC
@@ -26,13 +23,13 @@ namespace DiceIoC
 
             public void Dispose()
             {
-                Monitor.Exit(this.padLock);
+                Monitor.Exit(padLock);
             }
         }
 
         public override IDisposable Enter()
         {
-            return new PadLock(this.padLock);
+            return new PadLock(padLock);
         }
     }
 }

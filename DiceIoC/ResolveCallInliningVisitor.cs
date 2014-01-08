@@ -76,7 +76,7 @@ namespace DiceIoC
 
             if (nameExpression.NodeType == ExpressionType.Constant)
             {
-                string name = (string)((ConstantExpression) nameExpression).Value;
+                var name = (string)((ConstantExpression) nameExpression).Value;
                 Expression actualFactory =
                     new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(typeToResolve, name)]);
 

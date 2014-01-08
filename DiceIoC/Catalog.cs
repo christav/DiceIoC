@@ -68,19 +68,19 @@ namespace DiceIoC
         }
 
         private Dictionary<RegistrationKey, Func<Container, object>> GetFactories(
-            Dictionary<RegistrationKey, Func<Container, object>> factories)
+            Dictionary<RegistrationKey, Func<Container, object>> resultingFactories)
         {
             if (parentCatalog != null)
             {
-                parentCatalog.GetFactories(factories);
+                parentCatalog.GetFactories(resultingFactories);
             }
 
-            foreach (var item in this.factories)
+            foreach (var item in factories)
             {
-                var optimized = (Expression<Func<Container, object>>)(new ResolveCallInliningVisitor(this.factories).Visit(item.Value));
-                factories[item.Key] = optimized.Compile();
+                var optimized = (Expression<Func<Container, object>>)(new ResolveCallInliningVisitor(factories).Visit(item.Value));
+                resultingFactories[item.Key] = optimized.Compile();
             }
-            return factories;
+            return resultingFactories;
         }
 
         private Expression<Func<Container, object>> CastToObject<T>(
