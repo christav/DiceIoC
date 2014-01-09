@@ -58,7 +58,9 @@ namespace DiceIoC
 
         Expression<Func<Container, object>> ICatalog.GetFactoryExpression(RegistrationKey key)
         {
-            return factories[key];
+            if (factories.ContainsKey(key))
+                return factories[key];
+            return null;
         }
 
         private Expression<Func<Container, object>> CastToObject<T>(
