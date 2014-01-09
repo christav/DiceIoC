@@ -56,6 +56,11 @@ namespace DiceIoC
                 innerCatalog.GetFactoryExpressions(serviceType);
         }
 
+        Expression<Func<Container, object>> ICatalog.GetFactoryExpression(RegistrationKey key)
+        {
+            return factories[key];
+        }
+
         private Expression<Func<Container, object>> CastToObject<T>(
             Expression<Func<Container, T>> originalExpression)
         {
