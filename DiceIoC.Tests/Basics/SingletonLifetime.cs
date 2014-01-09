@@ -5,16 +5,8 @@ using Xunit;
 
 namespace DiceIoC.Tests.Basics
 {
-    public class SingletonLifetime : IDisposable
+    public class SingletonLifetime
     {
-        public SingletonLifetime()
-        {
-        }
-
-        public void Dispose()
-        {
-        }
-
         [Fact]
         public void CanRegisterWithSingleton()
         {

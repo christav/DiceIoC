@@ -6,17 +6,13 @@ using Xunit;
 
 namespace DiceIoC.Tests.Basics
 {
-    public class SimpleRegistrations : IDisposable
+    public class SimpleRegistrations
     {
-        private Catalog catalog;
+        private readonly Catalog catalog;
 
         public SimpleRegistrations()
         {
             catalog = new Catalog();
-        }
-
-        public void Dispose()
-        {
         }
 
         [Fact]

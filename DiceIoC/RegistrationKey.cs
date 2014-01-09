@@ -29,6 +29,16 @@ namespace DiceIoC
             return Type.GetHashCode();
         }
 
+        public static bool operator ==(RegistrationKey a, RegistrationKey b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(RegistrationKey a, RegistrationKey b)
+        {
+            return !a.Equals(b);
+        }
+
         public static RegistrationKey For<T>()
         {
             return new RegistrationKey(typeof (T), null);
