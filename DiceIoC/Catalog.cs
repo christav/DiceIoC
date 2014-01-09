@@ -49,7 +49,8 @@ namespace DiceIoC
             return innerCatalog.GetFactoryExpressions();
         }
 
-        IEnumerable<Expression<Func<Container, object>>> ICatalog.GetFactoryExpressions(Type serviceType)
+        private IDictionary<RegistrationKey, Func<Container, object>> GetFactories(
+            IDictionary<RegistrationKey, Func<Container, object>> resultingFactories)
         {
             return
                 innerCatalog.GetFactoryExpressions(serviceType);
