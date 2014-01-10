@@ -56,15 +56,12 @@ namespace DiceIoC
                 innerCatalog.GetFactoryExpressions(serviceType);
         }
 
-        Expression<Func<Container, object>> ICatalog.GetFactoryExpression(RegistrationKey key)
+        IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> ICatalog.GetFactoryExpressions()
         {
-            if (factories.ContainsKey(key))
-                return factories[key];
-            return null;
+            return Enumerable.Empty<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>>();
         }
 
-        private Expression<Func<Container, object>> CastToObject<T>(
-            Expression<Func<Container, T>> originalExpression)
+        Expression<Func<Container, object>> ICatalog.GetFactoryExpression(RegistrationKey key)
         {
             return innerCatalog.GetFactoryExpression(key);
         }

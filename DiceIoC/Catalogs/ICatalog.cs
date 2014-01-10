@@ -18,6 +18,13 @@ namespace DiceIoC.Catalogs
             GetFactoryExpressions();
 
         /// <summary>
+        /// Get the set of factory expressions registered in this catalog.
+        /// </summary>
+        /// <returns>Currently registered factories.</returns>
+        IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>>
+            GetFactoryExpressions();
+
+        /// <summary>
         /// Get the factory expression for a given key.
         /// </summary>
         /// <param name="key">The key to the type/name pair desired.</param>
