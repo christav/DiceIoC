@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DiceIoC.Catalogs;
 using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
