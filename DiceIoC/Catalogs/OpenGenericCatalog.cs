@@ -24,7 +24,6 @@ namespace DiceIoC.Catalogs
             {
                 var dictKey = new RegistrationKey(serviceType.GetGenericTypeDefinition(), name);
 
-
                 if (!factories.ContainsKey(dictKey))
                 {
                     factories[dictKey] = new List<Tuple<Type, Expression<Func<Container, object>>>>();
@@ -34,20 +33,13 @@ namespace DiceIoC.Catalogs
             return this;
         }
 
-        public IDictionary<RegistrationKey, Func<Container, object>> GetFactories()
+        /// <summary>
+        /// This catalog only gives registrations on demand, not when asking for all.
+        /// </summary>
+        /// <returns>An empty dictionary.</returns>
+        public IDictionary<RegistrationKey, Expression<Func<Container, object>>> GetFactoryExpressions()
         {
-            // This catalog only returns on demand factories
-            return new Dictionary<RegistrationKey, Func<Container, object>>();
-        }
-
-        public Func<Container, object> GetFactory(RegistrationKey key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
-        {
-            throw new NotImplementedException();
+            return new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
         }
 
         public Expression<Func<Container, object>> GetFactoryExpression(RegistrationKey key)
@@ -61,19 +53,14 @@ namespace DiceIoC.Catalogs
             return (Expression<Func<Container, object>>) (visitor.Visit(factoryExpression));
         }
 
-        public IEnumerable<Func<Container, object>> GetFactories(Type serviceType)
+        public IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType)
         {
             throw new NotImplementedException();
         }
 
-        private List<Tuple<Type, Expression<Func<Container, object>>>> Get(RegistrationKey key)
+        private IEnumerable<Tuple<Type, Expression<Func<Container, object>>>> Get(RegistrationKey key)
         {
-            List<Tuple<Type, Expression<Func<Container, object>>>> result;
-            if (!factories.TryGetValue(key, out result))
-            {
-                return new List<Tuple<Type, Expression<Func<Container, object>>>>();
-            }
-            return result;
+            return factories.Get(key, new List<Tuple<Type, Expression<Func<Container, object>>>>());
         }
 
         private Expression<Func<Container, object>> SelectFactory(Type targetType,

@@ -45,7 +45,7 @@ namespace DiceIoC.Tests.Basics
                 return factory;
             }
 
-            public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
+            public IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType)
             {
                 throw new NotImplementedException();
             }
