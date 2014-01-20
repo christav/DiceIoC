@@ -42,10 +42,19 @@ namespace DiceIoC.Catalogs
             {
                 if (Type.IsGenericType)
                 {
-                    return Type.GetGenericArguments().Any(tparam => genericMarkers.Any(marker => marker.IsAssignableFrom(tparam)));
+                    return Type.GetGenericArguments().Any(IsGenericMarkerType);
                 }
 
                 return false;
+            }
+        }
+
+        public bool IsValidOpenGenericRegistration
+        {
+            get
+            {
+                return IsOpenGenericRegistration &&
+                       MarkersAreInProperOrder();
             }
         }
 
@@ -56,6 +65,29 @@ namespace DiceIoC.Catalogs
             typeof(T10), typeof(T11), typeof(T12), typeof(T13), typeof(T14),
             typeof(T15), typeof(T16)
         };
+
+        public static bool IsGenericMarkerType(Type t)
+        {
+            return genericMarkers.Any(marker => marker.IsAssignableFrom(t));
+        }
+
+        public static bool IsGenericMarkerType(Type t, int index)
+        {
+            return genericMarkers[index].IsAssignableFrom(t);
+        }
+
+        private bool MarkersAreInProperOrder()
+        {
+            Type[] genericArgs = Type.GetGenericArguments();
+            for (int i = 0; i < genericArgs.Length; ++i)
+            {
+                if (IsGenericMarkerType(genericArgs[i]) && !genericMarkers[i].IsAssignableFrom(genericArgs[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         public static bool operator ==(RegistrationKey a, RegistrationKey b)
         {
