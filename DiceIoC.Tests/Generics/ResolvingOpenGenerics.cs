@@ -1,4 +1,4 @@
-using DiceIoC.Tests.SampleTypes;
+﻿using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
 using Xunit;
 
