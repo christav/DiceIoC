@@ -41,8 +41,7 @@ namespace DiceIoC.Tests.Generics
             var factoryExpression = catalog.GetFactoryExpression(RegistrationKey.For<IOneTypeArgGenericInterface<object>>());
             
             var factory = (Func<Container, object>)((LambdaExpression)factoryExpression).Compile();
-            factory(null).Should().BeOfType<Implementation<Object>>();
-            
+            factory(null).Should().BeOfType<Implementation<object>>();
         }
     }
 }
