@@ -9,6 +9,7 @@ namespace DiceIoC
     public sealed class Catalog : ICatalog
     {
         private readonly BasicCatalog innerCatalog = new BasicCatalog();
+        private readonly OpenGenericCatalog genericCatalog = new OpenGenericCatalog();
 
         public Catalog Register(Type serviceType, string name, Expression<Func<Container, object>> factoryExpression,
             params Func<
@@ -17,26 +18,35 @@ namespace DiceIoC
             >[] modifiers)
         {
             var key = new RegistrationKey(serviceType, name);
-            innerCatalog.Register(serviceType, name, factoryExpression, modifiers);
+            if (!key.IsOpenGenericRegistration)
+            {
+                innerCatalog.Register(serviceType, name, factoryExpression, modifiers);
+            }
+            else
+            {
+                genericCatalog.Register(serviceType, name, factoryExpression, modifiers);
+            }
             return this;
         }
 
-        public Catalog Register<TService>(string name, Expression<Func<Container, TService>> factoryExpression,
+        public Catalog Register<T>(string name, Expression<Func<Container, T>> factoryExpression,
             params Func<
                 Expression<Func<Container, object>>,
                 Expression<Func<Container, object>>
             >[] modifiers)
         {
-            return Register(typeof (TService), name, CatalogBase.CastToObject(factoryExpression), modifiers);
+            innerCatalog.Register(name, factoryExpression, modifiers);
+            return this;
         }
 
-        public Catalog Register<TService>(Expression<Func<Container, TService>> factoryExpression,
+        public Catalog Register<T>(Expression<Func<Container, T>> factoryExpression,
             params Func<
                 Expression<Func<Container, object>>,
                 Expression<Func<Container, object>>
             >[] modifiers)
         {
-            return Register(typeof(TService), null, CatalogBase.CastToObject(factoryExpression), modifiers);
+            innerCatalog.Register(factoryExpression, modifiers);
+            return this;
         }
 
         public Container CreateContainer()
@@ -53,22 +63,13 @@ namespace DiceIoC
             IDictionary<RegistrationKey, Func<Container, object>> resultingFactories)
         {
             return
-                innerCatalog.GetFactoryExpressions(serviceType);
-        }
-
-        public IEnumerable<Func<Container, object>> GetFactories(Type serviceType)
-        {
-            return Enumerable.Empty<Func<Container, object>>();
-        }
-
-        IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> ICatalog.GetFactoryExpressions()
-        {
-            return Enumerable.Empty<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>>();
+                innerCatalog.GetFactoryExpressions(serviceType)
+                    .Concat(genericCatalog.GetFactoryExpressions(serviceType));
         }
 
         Expression<Func<Container, object>> ICatalog.GetFactoryExpression(RegistrationKey key)
         {
-            return innerCatalog.GetFactoryExpression(key);
+            return innerCatalog.GetFactoryExpression(key) ?? genericCatalog.GetFactoryExpression(key);
         }
     }
 }
