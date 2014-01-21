@@ -7,8 +7,31 @@ namespace DiceIoC.Catalogs
 {
     public class OpenGenericCatalog : CatalogBase, ICatalog
     {
-        private readonly Dictionary<RegistrationKey, List<Tuple<Type, Expression<Func<Container, object>>>>> factories =
-            new Dictionary<RegistrationKey, List<Tuple<Type, Expression<Func<Container, object>>>>>();
+        private struct FactoryEntry
+        {
+            public Type RegisteredType;
+            public Expression<Func<Container, object>> FactoryExpression;
+
+            public List<
+                Func<
+                    Expression<Func<Container, object>>,
+                    Expression<Func<Container, object>>
+                >
+            > Modifiers;
+
+            public FactoryEntry(
+                Type registeredType, 
+                Expression<Func<Container, object>> factoryExpression, 
+                IEnumerable<Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>> modifiers)
+            {
+                RegisteredType = registeredType;
+                FactoryExpression = factoryExpression;
+                Modifiers = modifiers.ToList();
+            }
+        }
+
+        private readonly Dictionary<RegistrationKey, List<FactoryEntry>> factories =
+            new Dictionary<RegistrationKey, List<FactoryEntry>>();
 
         // Registration API
 
@@ -26,9 +49,9 @@ namespace DiceIoC.Catalogs
 
                 if (!factories.ContainsKey(dictKey))
                 {
-                    factories[dictKey] = new List<Tuple<Type, Expression<Func<Container, object>>>>();
+                    factories[dictKey] = new List<FactoryEntry>();
                 }
-                factories[dictKey].Add(Tuple.Create(serviceType, ApplyModifiers(factoryExpression, modifiers)));
+                factories[dictKey].Add(new FactoryEntry(serviceType, factoryExpression, modifiers));
             }
             return this;
         }
@@ -58,25 +81,25 @@ namespace DiceIoC.Catalogs
             throw new NotImplementedException();
         }
 
-        private IEnumerable<Tuple<Type, Expression<Func<Container, object>>>> Get(RegistrationKey key)
+        private IEnumerable<FactoryEntry> Get(RegistrationKey key)
         {
-            return factories.Get(key, new List<Tuple<Type, Expression<Func<Container, object>>>>());
+            return factories.Get(key, new List<FactoryEntry>());
         }
 
         private Expression<Func<Container, object>> SelectFactory(Type targetType,
-            IEnumerable<Tuple<Type, Expression<Func<Container, object>>>> possibilities)
+            IEnumerable<FactoryEntry> possibilities)
         {
             Type[] targetTypeArgs = targetType.GetGenericArguments();
             foreach (var possibility in possibilities)
             {
-                bool isMatch = possibility.Item1.GetGenericArguments()
+                bool isMatch = possibility.RegisteredType.GetGenericArguments()
                     .Select((p, i) => new {Index = i, ParameterType = p})
                     .All(n => n.ParameterType == targetTypeArgs[n.Index] ||
                               RegistrationKey.IsGenericMarkerType(n.ParameterType, n.Index));
 
                 if (isMatch)
                 {
-                    return possibility.Item2;
+                    return ApplyModifiers(possibility.FactoryExpression, possibility.Modifiers);
                 }
             }
             return null;
