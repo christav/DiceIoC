@@ -42,8 +42,7 @@ namespace DiceIoC.Catalogs
                 Expression<Func<Container, object>>
             >[] modifiers)
         {
-            var key = new RegistrationKey(serviceType, name);
-            if (key.IsValidOpenGenericRegistration)
+            if (GenericMarkers.IsValidMarkedGeneric(serviceType))
             {
                 var dictKey = new RegistrationKey(serviceType.GetGenericTypeDefinition(), name);
 
@@ -95,7 +94,7 @@ namespace DiceIoC.Catalogs
                 bool isMatch = possibility.RegisteredType.GetGenericArguments()
                     .Select((p, i) => new {Index = i, ParameterType = p})
                     .All(n => n.ParameterType == targetTypeArgs[n.Index] ||
-                              RegistrationKey.IsGenericMarkerType(n.ParameterType, n.Index));
+                              GenericMarkers.IsGenericMarkerType(n.ParameterType, n.Index));
 
                 if (isMatch)
                 {

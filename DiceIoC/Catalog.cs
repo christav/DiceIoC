@@ -18,7 +18,7 @@ namespace DiceIoC
             >[] modifiers)
         {
             var key = new RegistrationKey(serviceType, name);
-            if (!key.IsOpenGenericRegistration)
+            if (!GenericMarkers.IsMarkedGeneric(key.Type))
             {
                 innerCatalog.Register(serviceType, name, factoryExpression, modifiers);
             }
