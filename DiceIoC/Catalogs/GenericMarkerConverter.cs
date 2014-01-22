@@ -48,10 +48,6 @@ namespace DiceIoC.Catalogs
 
         private Type ReplaceMarkedType(Type t)
         {
-            // TODO: Handle nested generics - need to recurse on replacement for each generic arg
-            // in case there are nested markers.
-            // Actually, need to revisit all the substitutions for this property.
-            // ARGH - at least it's only in this class.
             Type genericType = t.GetGenericTypeDefinition();
             var genericArgs = t.GetGenericArguments();
             var closedArgs = genericArgs.Select(OpenToClosed).ToArray();
