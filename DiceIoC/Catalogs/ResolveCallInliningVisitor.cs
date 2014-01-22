@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace DiceIoC
+namespace DiceIoC.Catalogs
 {
     /// <summary>
     /// An expression visitor that looks for invocations of
@@ -16,11 +16,11 @@ namespace DiceIoC
     /// </summary>
     public class ResolveCallInliningVisitor : ExpressionVisitor
     {
-        private readonly Dictionary<RegistrationKey, Expression<Func<Container, object>>>  factories;
+        private readonly ICatalog catalog;
 
-        public ResolveCallInliningVisitor(Dictionary<RegistrationKey, Expression<Func<Container, object>>> factories)
+        public ResolveCallInliningVisitor(ICatalog catalog)
         {
-            this.factories = factories;
+            this.catalog = catalog;
         }
 
         private static readonly MethodInfo resolveWithNameMethod =
@@ -58,14 +58,7 @@ namespace DiceIoC
         {
             var containerParam = node.Object;
             var typeToResolve = node.Method.GetGenericArguments()[0];
-
-            Expression actualFactory =
-                new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(typeToResolve, null)]);
-
-            var cast = Expression.Convert(
-                Expression.Invoke(actualFactory, containerParam), typeToResolve);
-
-            return cast;
+            return GetOptimizedResolveExpression(typeToResolve, null, containerParam);
         }
 
         private Expression ReplaceResolveWithName(MethodCallExpression node)
@@ -77,17 +70,25 @@ namespace DiceIoC
             if (nameExpression.NodeType == ExpressionType.Constant)
             {
                 var name = (string)((ConstantExpression) nameExpression).Value;
-                Expression actualFactory =
-                    new ResolveCallInliningVisitor(factories).Visit(factories[new RegistrationKey(typeToResolve, name)]);
-
-                var cast = Expression.Convert(
-                    Expression.Invoke(actualFactory, containerParam), typeToResolve);
-
-                return cast;
+                return GetOptimizedResolveExpression(typeToResolve, name, containerParam);
             }
             // If the name's not a constant, we can't optimize, but we can still
             // run the original expression.
             return node;
+        }
+
+        private Expression GetOptimizedResolveExpression(Type typeToResolve, string name, Expression containerParam)
+        {
+            Expression innerExpression = catalog.GetFactoryExpression(new RegistrationKey(typeToResolve, name));
+            if (innerExpression == null)
+            {
+                throw new KeyNotFoundException(string.Format("The type {0} name {1} is not registered in the catalog",
+                    typeToResolve.Name, name));
+            }
+
+            Expression optimizedFactory = Visit(innerExpression);
+            
+            return Expression.Convert(Expression.Invoke(optimizedFactory, containerParam), typeToResolve);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using DiceIoC.Catalogs;
 using DiceIoC.Tests.ExpressionExperiments;
 using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
@@ -10,10 +12,49 @@ namespace DiceIoC.Tests.Basics
 {
     public class ResolveCallInliningVisitorTests
     {
+        private class DictionaryCatalog : ICatalog, 
+            IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>>
+        {
+            private readonly Dictionary<RegistrationKey, Expression<Func<Container, object>>> factories =
+                new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
+
+            public void Add(RegistrationKey key, Expression<Func<Container, object>> factory)
+            {
+                factories[key] = factory;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            public IEnumerator<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetEnumerator()
+            {
+                return factories.GetEnumerator();
+            }
+
+            public IDictionary<RegistrationKey, Expression<Func<Container, object>>> GetFactoryExpressions()
+            {
+                throw new NotImplementedException();
+            }
+
+            public Expression<Func<Container, object>> GetFactoryExpression(RegistrationKey key)
+            {
+                Expression<Func<Container, object>> factory;
+                factories.TryGetValue(key, out factory);
+                return factory;
+            }
+
+            public IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         [Fact]
         public void OptimizingExpressionsWithoutResolveReturnsOriginalExpression()
         {
-            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
+            var factories = new DictionaryCatalog();
             Expression<Func<Container, ConcreteClass>> e = c => new ConcreteClass();
 
             var visitor = new ResolveCallInliningVisitor(factories);
@@ -25,8 +66,10 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void OptimizingExpressionReplacesDefaultResolves()
         {
-            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
-            factories[new RegistrationKey(typeof (ISimpleInterface), null)] = c => new SimpleInterfaceImpl();
+            var factories = new DictionaryCatalog
+            {
+                {RegistrationKey.For<ISimpleInterface>(null), c => new SimpleInterfaceImpl()}
+            };
 
             Expression<Func<Container, ConcreteClassWithDependencies>> e = 
                 c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());
@@ -48,8 +91,10 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void ExpressionsResolvingWithNameGetReplaced()
         {
-            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
-            factories[new RegistrationKey(typeof(ISimpleInterface), "named")] = c => new SimpleInterfaceImpl();
+            var factories = new DictionaryCatalog
+            {
+                {RegistrationKey.For<ISimpleInterface>("named"), c => new SimpleInterfaceImpl()}
+            };
 
             Expression<Func<Container, ConcreteClassWithDependencies>> e =
                 c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>("named"));
@@ -71,8 +116,10 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void OptimizedExpressionCanBeCompiled()
         {
-            var factories = new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
-            factories[new RegistrationKey(typeof(ISimpleInterface), null)] = c => new SimpleInterfaceImpl();
+            var factories = new DictionaryCatalog
+            {
+                {RegistrationKey.For<ISimpleInterface>(), c => new SimpleInterfaceImpl()}
+            };
 
             Expression<Func<Container, object>> e =
                 c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());

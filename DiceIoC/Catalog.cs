@@ -2,97 +2,62 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using DiceIoC.Catalogs;
 
 namespace DiceIoC
 {
-    public class Catalog
+    public sealed class Catalog : ICatalog
     {
-        private readonly Dictionary<RegistrationKey, Expression<Func<Container, object>>> factories =
-            new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
+        private readonly BasicCatalog innerCatalog = new BasicCatalog();
 
-        private readonly Catalog parentCatalog;
-
-        public Catalog()
-        {
-            
-        }
-
-        public Catalog(Catalog parentCatalog)
-        {
-            this.parentCatalog = parentCatalog;
-        }
-
-        public IEnumerable<KeyValuePair<string, Type>> Registrations
-        {
-            get { return factories.Keys.Select(k => new KeyValuePair<string, Type>(k.Name, k.Type)); }
-        }
-
-        private Catalog RegisterFactory(Type serviceType, string name, Expression<Func<Container, object>> factoryExpression,
+        public Catalog Register(Type serviceType, string name, Expression<Func<Container, object>> factoryExpression,
             params Func<
                 Expression<Func<Container, object>>,
                 Expression<Func<Container, object>>
             >[] modifiers)
         {
             var key = new RegistrationKey(serviceType, name);
-            factories[key] = modifiers.Aggregate(factoryExpression, (current, modifier) => modifier(current));
+            innerCatalog.Register(serviceType, name, factoryExpression, modifiers);
             return this;
         }
 
-        public Catalog Register<T>(string name, Expression<Func<Container, T>> factoryExpression,
+        public Catalog Register<TService>(string name, Expression<Func<Container, TService>> factoryExpression,
             params Func<
                 Expression<Func<Container, object>>,
                 Expression<Func<Container, object>>
             >[] modifiers)
         {
-            return RegisterFactory(typeof(T), name, CastToObject(factoryExpression), modifiers);
+            return Register(typeof (TService), name, CatalogBase.CastToObject(factoryExpression), modifiers);
         }
 
-        public Catalog Register<T>(Expression<Func<Container, T>> factoryExpression,
+        public Catalog Register<TService>(Expression<Func<Container, TService>> factoryExpression,
             params Func<
                 Expression<Func<Container, object>>,
                 Expression<Func<Container, object>>
             >[] modifiers)
         {
-            return RegisterFactory(typeof(T), null, CastToObject(factoryExpression), modifiers);
+            return Register(typeof(TService), null, CatalogBase.CastToObject(factoryExpression), modifiers);
         }
 
         public Container CreateContainer()
         {
-            return new Container(this, GetFactories());
+            return new Container(this);
         }
 
-        private Dictionary<RegistrationKey, Func<Container, object>> GetFactories()
+        IDictionary<RegistrationKey, Expression<Func<Container, object>>> ICatalog.GetFactoryExpressions()
         {
-            var result = new Dictionary<RegistrationKey, Func<Container, object>>();
-            return GetFactories(result);
+            return innerCatalog.GetFactoryExpressions();
         }
 
-        private Dictionary<RegistrationKey, Func<Container, object>> GetFactories(
-            Dictionary<RegistrationKey, Func<Container, object>> resultingFactories)
+        IEnumerable<Expression<Func<Container, object>>> ICatalog.GetFactoryExpressions(Type serviceType)
         {
-            if (parentCatalog != null)
-            {
-                parentCatalog.GetFactories(resultingFactories);
-            }
-
-            foreach (var item in factories)
-            {
-                var optimized = (Expression<Func<Container, object>>)(new ResolveCallInliningVisitor(factories).Visit(item.Value));
-                resultingFactories[item.Key] = optimized.Compile();
-            }
-            return resultingFactories;
+            return
+                innerCatalog.GetFactoryExpressions(serviceType);
         }
 
-        private Expression<Func<Container, object>> CastToObject<T>(
-            Expression<Func<Container, T>> originalExpression)
+        Expression<Func<Container, object>> ICatalog.GetFactoryExpression(RegistrationKey key)
         {
-            var c = Expression.Parameter(typeof(Container), "c");
-
-            var cast = Expression.Convert(
-                Expression.Invoke(originalExpression, c), typeof(object));
-
-            return Expression.Lambda<Func<Container, object>>(
-                cast, c);
+            return innerCatalog.GetFactoryExpression(key);
         }
     }
 }

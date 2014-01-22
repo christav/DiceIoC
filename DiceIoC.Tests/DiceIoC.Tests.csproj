@@ -54,11 +54,19 @@
     <Compile Include="Basics\SingletonLifetime.cs" />
     <Compile Include="ExpressionExperiments\Expressions.cs" />
     <Compile Include="Basics\ResolveCallInliningVisitorTests.cs" />
+    <Compile Include="Generics\RegistrationDetection.cs" />
+    <Compile Include="Generics\ResolvingOpenGenerics.cs" />
+    <Compile Include="Generics\TypeRewritingVisitorTests.cs" />
+    <Compile Include="Generics\ValidGenericRegistrations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SampleTypes\ConcreteClass.cs" />
     <Compile Include="SampleTypes\ConcreteClassWithDependencies.cs" />
+    <Compile Include="SampleTypes\IOneTypeArgGenericInterface.cs" />
     <Compile Include="SampleTypes\ISimpleInterface.cs" />
+    <Compile Include="SampleTypes\ITwoTypeArgGenericInterface.cs" />
+    <Compile Include="SampleTypes\OneTypeArgGenericImpl.cs" />
     <Compile Include="SampleTypes\SimpleInterfaceImpl.cs" />
+    <Compile Include="SampleTypes\TwoTypeArgGenericImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

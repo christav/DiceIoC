@@ -7,7 +7,7 @@ namespace DiceIoC.Lifetimes
     /// A base class for lifetimes that
     /// acquire a lock when accessed.
     /// </summary>
-    public abstract class SynchronizedLifetime : Lifetime
+    public abstract class SynchronizedLifetime
     {
         private readonly object padLock = new object();
 
@@ -27,7 +27,7 @@ namespace DiceIoC.Lifetimes
             }
         }
 
-        public override IDisposable Enter()
+        public IDisposable Enter()
         {
             return new PadLock(padLock);
         }

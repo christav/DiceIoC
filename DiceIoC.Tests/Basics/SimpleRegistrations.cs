@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using DiceIoC.Catalogs;
 using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
 using Xunit;
@@ -18,7 +19,7 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void DefaultContainerHasNoRegistrations()
         {
-            catalog.Registrations.Count().Should().Be(0);
+            ((ICatalog) catalog).GetFactoryExpressions().Count().Should().Be(0);
         }
 
         [Fact]
@@ -26,12 +27,6 @@ namespace DiceIoC.Tests.Basics
         {
             var container = catalog.CreateContainer();
             container.Should().NotBeNull();
-        }
-        [Fact]
-        public void ContainerPointsToCatalog()
-        {
-            var container = catalog.CreateContainer();
-            container.Catalog.Should().BeSameAs(catalog);
         }
 
         [Fact]

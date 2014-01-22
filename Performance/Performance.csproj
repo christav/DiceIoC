@@ -52,6 +52,9 @@
     <Reference Include="Munq.IocContainer">
       <HintPath>..\packages\Munq.IocContainer.3.1.6\Lib\Munq.IocContainer.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject">
+      <HintPath>..\packages\Ninject.3.0.1.10\lib\net45-full\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="StructureMap">
       <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
     </Reference>
@@ -82,6 +85,7 @@
     <Compile Include="Domain\StockQuote.cs" />
     <Compile Include="Domain\WebService.cs" />
     <Compile Include="MunqUseCase.cs" />
+    <Compile Include="NinjectUseCase.cs" />
     <Compile Include="PlainSingletonUseCase.cs" />
     <Compile Include="PlainUseCase.cs" />
     <Compile Include="Program.cs" />

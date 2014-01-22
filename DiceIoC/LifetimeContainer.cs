@@ -36,7 +36,7 @@ namespace DiceIoC
 
         // An instance of this lifetime object manages
         // each of the contained objects
-        private class ContainedLifetime : SynchronizedLifetime, IDisposable
+        private sealed class ContainedLifetime : SynchronizedLifetime, IDisposable
         {
             private object value;
 
@@ -54,12 +54,18 @@ namespace DiceIoC
                 }
             }
 
-            public override object GetValue(Container c)
+// ReSharper disable once UnusedMember.Local
+            // Method is used via dyamically generated expression
+// ReSharper disable once UnusedParameter.Local
+            public object GetValue(Container c)
             {
                 return value;
             }
 
-            public override object SetValue(object newValue, Container c)
+// ReSharper disable once UnusedMember.Local
+            // Method is used via dynamically generated expression
+// ReSharper disable once UnusedParameter.Local
+            public object SetValue(object newValue, Container c)
             {
                 return (value = newValue);
             }
@@ -74,11 +80,11 @@ namespace DiceIoC
         }
 
         private Func<Expression<Func<Container, object>>,
-            Expression<Func<Container, object>>> Lifetime
+            Expression<Func<Container, object>>> LifetimeModifier
         {
             get
             {
-                return new ContainedLifetime(this).LifetimeModifier;
+                return factory => Lifetime.RewriteForLifetime(factory, new ContainedLifetime(this));
             }
         }
 
@@ -86,7 +92,7 @@ namespace DiceIoC
             Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>(
             LifetimeContainer lifetime)
         {
-            return lifetime.Lifetime;
+            return lifetime.LifetimeModifier;
         }
     }
 }

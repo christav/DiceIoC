@@ -32,6 +32,7 @@ namespace Performance
             new AutofacUseCase(),
             new StructureMapUseCase(),
             new CastleWindsorUseCase(),
+            new NinjectUseCase(),
             new PlainSingletonUseCase(),
             new UnitySingletonUseCase(),
             new DiceSingletonUseCase(),
@@ -39,6 +40,7 @@ namespace Performance
             new AutofacSingletoncUseCase(),
             new StructureMapSingletonUseCase(),
             new CastleWindsorSingletonUseCase(),
+            new NinjectSingletonUseCase(),
         };
 
         private static void Main(string[] args)

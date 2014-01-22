@@ -4,38 +4,42 @@ using System.Linq.Expressions;
 namespace DiceIoC.Lifetimes
 {
     /// <summary>
-    /// Base class for lifetimes that handles the details of
-    /// the expression tree munging so lifetime implementors
-    /// can concentrate on the details of lifetime storage.
+    /// Helper class to turn a "Lifetime manager" object into a
+    /// modifier for use in registration. A lifetime manager
+    /// is any object that implements the following methods:
     /// 
-    /// Locking is explicitly not implemented (the Enter method
-    /// is a noop).
+    /// IDisposable Enter();
+    /// object GetValue(Container c);
+    /// object SetValue(object value, Container c);
+    /// 
+    /// No need for an interface or base class, just implement
+    /// the methods as named above publicly and it's set.
     /// </summary>
-    public abstract class Lifetime : ILifetime
+    public static class Lifetime
     {
-        private class NoopDispose : IDisposable
-        {
-            public void Dispose()
-            {
-            }
-        }
-
-        public virtual IDisposable Enter()
-        {
-            return new NoopDispose();
-        }
-
-        public abstract object GetValue(Container c);
-        public abstract object SetValue(object value, Container ce);
-
-        public Expression<Func<Container, object>> LifetimeModifier(
-            Expression<Func<Container, object>> factoryExpression)
+        /// <summary>
+        /// Helper function for building lifetimes. This method will
+        /// rewrite the given <paramref name="factoryExpression"/>
+        /// so that it is wrapped in calls to the <paramref name="lifetimeContainer"/>
+        /// methods correctly.
+        /// </summary>
+        /// <remarks>The lifetime object doesn't have to derive from Lifetime,
+        /// or even implement ILifetime. It just needs to implement the
+        /// three methods Enter, GetValue, SetValue.</remarks>
+        /// <typeparam name="T">Type of the <paramref name="lifetimeContainer"/> to use.</typeparam>
+        /// <param name="factoryExpression">Original factory expression</param>
+        /// <param name="lifetimeContainer">Lifetime container object that will be called by
+        /// the rewritten expression.</param>
+        /// <returns>The new expression.</returns>
+        public static Expression<Func<Container, object>> RewriteForLifetime<T>(
+            Expression<Func<Container, object>> factoryExpression, 
+            T lifetimeContainer)
         {
             var c = Expression.Parameter(typeof(Container), "container");
-            var guard = Expression.Parameter(typeof (IDisposable), "guard");
-            var ltm = Expression.Constant(this, typeof (ILifetime));
+            var guard = Expression.Parameter(typeof(IDisposable), "guard");
+            var ltm = Expression.Constant(lifetimeContainer, typeof(T));
 
-            var body = Expression.Block(new [] {guard},
+            var body = Expression.Block(new[] { guard },
                 CreateGuard(guard, ltm),
                 Expression.TryFinally(
                     GetSetValueExpression(factoryExpression, c, ltm),
@@ -48,13 +52,13 @@ namespace DiceIoC.Lifetimes
             return final;
         }
 
-        public Expression CreateGuard(ParameterExpression guardVariable, ConstantExpression ltm)
+        private static Expression CreateGuard(ParameterExpression guardVariable, ConstantExpression ltm)
         {
             return Expression.Assign(guardVariable,
                 Expression.Call(ltm, "Enter", null));
         }
 
-        public Expression GetSetValueExpression(Expression factory, ParameterExpression container, ConstantExpression ltm)
+        private static Expression GetSetValueExpression(Expression factory, ParameterExpression container, ConstantExpression ltm)
         {
             return Expression.Coalesce(
                 Expression.Call(ltm, "GetValue", null, container),

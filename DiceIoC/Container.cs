@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using DiceIoC.Catalogs;
 
 namespace DiceIoC
 {
     public class Container
     {
-        private readonly Dictionary<RegistrationKey, Func<Container, object>> factories;
-        private readonly Catalog catalog;
+        private IDictionary<RegistrationKey, Func<Container, object>> factories;
+        private readonly IDictionary<Type, List<Func<Container, object>>> resolveAllFactories = new Dictionary<Type, List<Func<Container, object>>>();
+
+        private readonly ICatalog catalog;
         private readonly object factoriesLock = new object();
 
-        internal Container(Catalog catalog, Dictionary<RegistrationKey, Func<Container, object>> factories)
+        internal Container(ICatalog catalog)
         {
             this.catalog = catalog;
-            this.factories = factories;
+            GetFactories();
         }
-
-        public Catalog Catalog { get { return catalog; } }
 
         public T Resolve<T>(string name)
         {
@@ -38,7 +40,7 @@ namespace DiceIoC
         {
             resolved = default(T);
             object result;
-            bool succeeded = TryResolve(RegistrationKey.For<T>(name), this, out result);
+            bool succeeded = TryResolve(RegistrationKey.For<T>(name), out result);
             if (succeeded)
             {
                 resolved = (T) result;
@@ -53,13 +55,23 @@ namespace DiceIoC
 
         public IEnumerable<T> ResolveAll<T>()
         {
+            List<Func<Container, object>> knownFactories;
+
             lock (factoriesLock)
             {
-                return factories.Keys.Where(k => k.Type == typeof (T)).Select(key => Resolve<T>(key.Name));
+                if (!resolveAllFactories.TryGetValue(typeof (T), out knownFactories))
+                {
+                    knownFactories =
+                        factories.Where(kvp => kvp.Key.Type == typeof (T)).Select(kvp => kvp.Value)
+                        .Concat(GetFactories(typeof(T)))
+                        .ToList();
+                    resolveAllFactories[typeof (T)] = knownFactories;
+                }
             }
+            return knownFactories.Select(f => (T)f(this));
         }
 
-        private bool TryResolve(RegistrationKey key, Container c, out object result)
+        private bool TryResolve(RegistrationKey key, out object result)
         {
             Func<Container, object> factory;
             lock (factoriesLock)
@@ -67,12 +79,49 @@ namespace DiceIoC
                 bool found = factories.TryGetValue(key, out factory);
                 if (!found)
                 {
-                    result = null;
-                    return false;
+                    factory = GetFactory(key);
+                    if (factory != null)
+                    {
+                        factories[key] = factory;
+                    }
+                    else
+                    {
+                        result = null;
+                        return false;
+                    }
                 }
             }
-            result = factory(c);
+            result = factory(this);
             return true;
+        }
+
+        private void GetFactories()
+        {
+            var expressions = catalog.GetFactoryExpressions();
+            factories = expressions
+                .ToDictionary(kvp => kvp.Key, kvp => Compile(kvp.Value));
+        }
+
+        private Func<Container, object> Compile(Expression<Func<Container, object>> expression)
+        {
+            var visitor = new ResolveCallInliningVisitor(catalog);
+            var optimized = (Expression<Func<Container, object>>) visitor.Visit(expression);
+            return optimized.Compile();
+        }
+
+        private Func<Container, object> GetFactory(RegistrationKey key)
+        {
+            var factoryExpression = catalog.GetFactoryExpression(key);
+            if (factoryExpression != null)
+            {
+                return Compile(factoryExpression);
+            }
+            return null;
+        }
+
+        private IEnumerable<Func<Container, object>> GetFactories(Type serviceType)
+        {
+            return catalog.GetFactoryExpressions(serviceType).Select(Compile);
         }
     }
 }

@@ -1,11 +1,18 @@
 ﻿using System;
+using System.Linq;
 
-namespace DiceIoC
+namespace DiceIoC.Catalogs
 {
     public struct RegistrationKey
     {
         public readonly string Name;
         public readonly Type Type;
+
+        public RegistrationKey(Type type)
+            : this(type, null)
+        {
+            
+        }
 
         public RegistrationKey(Type type, string name)
         {
