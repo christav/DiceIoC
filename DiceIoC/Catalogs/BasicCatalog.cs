@@ -27,7 +27,7 @@ namespace DiceIoC.Catalogs
             return this;
         }
 
-        public IDictionary<RegistrationKey, Expression<Func<Container, object>>> GetFactoryExpressions()
+        public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
         {
             return factories;
         }

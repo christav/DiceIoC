@@ -33,7 +33,7 @@ namespace DiceIoC.Tests.Basics
                 return factories.GetEnumerator();
             }
 
-            public IDictionary<RegistrationKey, Expression<Func<Container, object>>> GetFactoryExpressions()
+            public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
             {
                 throw new NotImplementedException();
             }

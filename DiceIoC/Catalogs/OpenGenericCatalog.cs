@@ -59,9 +59,9 @@ namespace DiceIoC.Catalogs
         /// This catalog only gives registrations on demand, not when asking for all.
         /// </summary>
         /// <returns>An empty dictionary.</returns>
-        public IDictionary<RegistrationKey, Expression<Func<Container, object>>> GetFactoryExpressions()
+        public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
         {
-            return new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
+            return Enumerable.Empty<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>>();
         }
 
         public Expression<Func<Container, object>> GetFactoryExpression(RegistrationKey key)

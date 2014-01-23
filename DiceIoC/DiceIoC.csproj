@@ -44,6 +44,7 @@
     <Compile Include="Catalogs\GenericTypeRewritingVisitor.cs" />
     <Compile Include="Catalogs\ICatalog.cs" />
     <Compile Include="Catalogs\IRegistrar.cs" />
+    <Compile Include="Catalogs\OpenGenericCatalog.cs" />
     <Compile Include="Catalogs\RegistrationKey.cs" />
     <Compile Include="Catalogs\ResolveCallInliningVisitor.cs" />
     <Compile Include="Container.cs" />

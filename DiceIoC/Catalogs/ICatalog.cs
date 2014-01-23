@@ -14,13 +14,6 @@ namespace DiceIoC.Catalogs
         /// Get the set of factory expressions registered in this catalog.
         /// </summary>
         /// <returns>Currently registered factories.</returns>
-        IDictionary<RegistrationKey, Expression<Func<Container, object>>>
-            GetFactoryExpressions();
-
-        /// <summary>
-        /// Get the set of factory expressions registered in this catalog.
-        /// </summary>
-        /// <returns>Currently registered factories.</returns>
         IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>>
             GetFactoryExpressions();
 

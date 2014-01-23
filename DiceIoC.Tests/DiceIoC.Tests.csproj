@@ -54,6 +54,7 @@
     <Compile Include="Basics\SingletonLifetime.cs" />
     <Compile Include="ExpressionExperiments\Expressions.cs" />
     <Compile Include="Basics\ResolveCallInliningVisitorTests.cs" />
+    <Compile Include="Generics\RegistrationAndCatalogs.cs" />
     <Compile Include="Generics\RegistrationDetection.cs" />
     <Compile Include="Generics\TypeRewritingVisitorTests.cs" />
     <Compile Include="Generics\ValidGenericRegistrations.cs" />
