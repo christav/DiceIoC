@@ -78,7 +78,7 @@ namespace DiceIoC.Tests.Generics
             }
         }
 
-        [Fact(Skip="Crashes badly")]
+        [Fact]
         public void ResolvingOpenGenericsWithDependenciesResolvesCorrectly()
         {
             var container = new Catalog()

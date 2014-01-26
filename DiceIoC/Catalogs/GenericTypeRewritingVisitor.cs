@@ -24,7 +24,7 @@ namespace DiceIoC.Catalogs
 
             Type newTypeToConstruct = typeConverter.OpenToClosed(node.Type);
             ConstructorInfo newConstructor = typeConverter.OpenToClosed(node.Constructor, newTypeToConstruct);
-            return Expression.New(newConstructor, node.Arguments.Select(n => Visit(node)));
+            return Expression.New(newConstructor, node.Arguments.Select(Visit));
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -49,6 +49,82 @@ namespace DiceIoC.Catalogs
                 return Expression.Parameter(typeConverter.OpenToClosed(node.Type), node.Name);
             }
             return base.VisitParameter(node);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            bool requiresRewrite = ObjectIsMarkedGeneric(node.Object) || 
+                MethodIsMarkedGeneric(node.Method) ||
+                ArgumentsAreMarkedGeneric(node.Arguments);
+
+            if (!requiresRewrite)
+            {
+                return base.VisitMethodCall(node);
+            }
+            return RewriteCall(node);
+        }
+
+        private Expression RewriteCall(MethodCallExpression expression)
+        {
+            MethodInfo method = expression.Method;
+            Expression instanceExpression;
+            Type declaringType;
+            BindingFlags bindingFlags;
+
+            if (IsCallToStaticMethod(expression))
+            {
+                instanceExpression = null;
+                declaringType = typeConverter.OpenToClosed(method.DeclaringType);
+                bindingFlags = BindingFlags.Static;
+            }
+            else
+            {
+                instanceExpression = Visit(expression.Object);
+                declaringType = instanceExpression.Type;
+                bindingFlags = BindingFlags.Instance;
+            }
+
+            bindingFlags |= method.IsPublic ? BindingFlags.Public : BindingFlags.NonPublic;
+
+            var argExpressions = expression.Arguments.Select(Visit).ToList();
+            var candidateMethods = declaringType.GetMethods(bindingFlags)
+                .Where(m => m.Name == method.Name && m.GetParameters().Length == argExpressions.Count);
+
+            if (method.IsGenericMethod)
+            {
+                var typeArgs = method.GetGenericArguments().Select(typeConverter.OpenToClosed).ToArray();
+                candidateMethods = candidateMethods
+                    .Where(m => m.IsGenericMethodDefinition && m.GetGenericArguments().Length == typeArgs.Length)
+                    .Select(m => m.MakeGenericMethod(typeArgs));
+            }
+
+            var argTypes = argExpressions.Select(e => e.Type).ToArray();
+            var newMethod =
+                candidateMethods.First(m => argTypes.SequenceEqual(m.GetParameters().Select(p => p.ParameterType)));
+
+            return Expression.Call(instanceExpression, newMethod, argExpressions);
+        }
+
+        private static bool IsCallToStaticMethod(MethodCallExpression expression)
+        {
+            return expression.Object == null;
+        }
+
+
+
+        private static bool ObjectIsMarkedGeneric(Expression o)
+        {
+            return o != null && GenericMarkers.IsGenericMarkerType(o.Type);
+        }
+
+        private static bool MethodIsMarkedGeneric(MethodInfo method)
+        {
+            return method.IsGenericMethod && method.GetGenericArguments().Any(GenericMarkers.IsMarkedGeneric);
+        }
+
+        private static bool ArgumentsAreMarkedGeneric(IEnumerable<Expression> args)
+        {
+            return args.Any(e => GenericMarkers.IsMarkedGeneric(e.Type));
         }
     }
 }
