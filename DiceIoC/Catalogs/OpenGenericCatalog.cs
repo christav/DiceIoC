@@ -77,7 +77,24 @@ namespace DiceIoC.Catalogs
 
         public IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType)
         {
-            throw new NotImplementedException();
+            if (!serviceType.IsGenericType)
+            {
+                yield break;
+            }
+
+            var genericType = serviceType.GetGenericTypeDefinition();
+            foreach (var registration in factories.Where(kvp => kvp.Key.Type == genericType))
+            {
+                foreach (var entry in registration.Value)
+                {
+                    if (IsPossibleMatch(serviceType, entry.RegisteredType))
+                    {
+                        var visitor = new GenericTypeRewritingVisitor(serviceType.GetGenericArguments());
+                        var genericFactory = ApplyModifiers(entry.FactoryExpression, entry.Modifiers);
+                        yield return ((Expression<Func<Container, object>>)visitor.Visit(genericFactory));
+                    }
+                }
+            }
         }
 
         private IEnumerable<FactoryEntry> Get(RegistrationKey key)
@@ -88,20 +105,19 @@ namespace DiceIoC.Catalogs
         private Expression<Func<Container, object>> SelectFactory(Type targetType,
             IEnumerable<FactoryEntry> possibilities)
         {
-            Type[] targetTypeArgs = targetType.GetGenericArguments();
-            foreach (var possibility in possibilities)
-            {
-                bool isMatch = possibility.RegisteredType.GetGenericArguments()
-                    .Select((p, i) => new {Index = i, ParameterType = p})
-                    .All(n => n.ParameterType == targetTypeArgs[n.Index] ||
-                              GenericMarkers.IsGenericMarkerType(n.ParameterType, n.Index));
+            return possibilities
+                .Where(p => IsPossibleMatch(targetType, p.RegisteredType))
+                .Select(p => ApplyModifiers(p.FactoryExpression, p.Modifiers))
+                .FirstOrDefault();
+        }
 
-                if (isMatch)
-                {
-                    return ApplyModifiers(possibility.FactoryExpression, possibility.Modifiers);
-                }
-            }
-            return null;
+        private static bool IsPossibleMatch(Type requestedType, Type possibleType)
+        {
+            Type[] requestedTypeArgs = requestedType.GetGenericArguments();
+            return possibleType.GetGenericArguments()
+                .Select((p, i) => new {Index = i, ParameterType = p})
+                .All(n => n.ParameterType == requestedTypeArgs[n.Index] ||
+                          GenericMarkers.IsGenericMarkerType(n.ParameterType, n.Index));
         }
     }
 }

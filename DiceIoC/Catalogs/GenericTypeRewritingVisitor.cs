@@ -6,6 +6,10 @@ using System.Reflection;
 
 namespace DiceIoC.Catalogs
 {
+    // TODO: Figure out compatibility with Windows store apps 
+    // Can't use existing reflection API on metro CLR, can't use
+    // new reflection API on .NET 4.0. Not willing to limit to
+    // .NET 4.5 or up. Hrm.
     public class GenericTypeRewritingVisitor : ExpressionVisitor
     {
         private readonly GenericMarkerConverter typeConverter;
@@ -53,7 +57,8 @@ namespace DiceIoC.Catalogs
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            bool requiresRewrite = ObjectIsMarkedGeneric(node.Object) || 
+            bool requiresRewrite = ObjectIsMarkedGeneric(node.Object) ||
+                MethodIsOnMarkedGenericType(node.Method) ||
                 MethodIsMarkedGeneric(node.Method) ||
                 ArgumentsAreMarkedGeneric(node.Arguments);
 
@@ -110,7 +115,10 @@ namespace DiceIoC.Catalogs
             return expression.Object == null;
         }
 
-
+        private static bool MethodIsOnMarkedGenericType(MethodInfo method)
+        {
+            return GenericMarkers.IsMarkedGeneric(method.DeclaringType);
+        }
 
         private static bool ObjectIsMarkedGeneric(Expression o)
         {

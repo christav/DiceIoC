@@ -1,4 +1,7 @@
-﻿using DiceIoC.Tests.SampleTypes;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
 using Xunit;
 
@@ -92,6 +95,81 @@ namespace DiceIoC.Tests.Generics
             ((OtherOneArgGenericImpl<string>) o).Dependency.Should().Be("hello");
         }
 
+        [Fact]
+        public void ResolvingOpenGenericsWithDependenciesByNameResolvesCorrectly()
+        {
+            var container = new Catalog()
+                .Register<IOneTypeArgGenericInterface<T0>>(c => new OtherOneArgGenericImpl<T0>(c.Resolve<T0>("named")))
+                .Register(c => "hello")
+                .Register("named", c => "goodbye")
+                .CreateContainer();
+
+            var o = container.Resolve<IOneTypeArgGenericInterface<string>>();
+
+            ((OtherOneArgGenericImpl<string>)o).Dependency.Should().Be("goodbye");
+        }
+
+        [Fact]
+        public void CanResolveOpenGenericWithCallToStaticMethod()
+        {
+            var container = new Catalog()
+                .Register<IOneTypeArgGenericInterface<T0>>(
+                    c => new OtherOneArgGenericImpl<T0>(StaticHelper.MakeSomething<T0>()))
+                .CreateContainer();
+
+            StaticHelper.Values[typeof (string)] = "a string";
+
+            var o = container.Resolve<IOneTypeArgGenericInterface<string>>();
+            ((OtherOneArgGenericImpl<string>) o).Dependency.Should().Be("a string");
+        }
+
+        [Fact]
+        public void CanResolveOpenGenericToCallToMethodOfGenericClass()
+        {
+            var container = new Catalog()
+                .Register<IOneTypeArgGenericInterface<T0>>(
+                    c => new OtherOneArgGenericImpl<T0>(GenericStaticHelper<T0>.MakeSomething()))
+                .CreateContainer();
+
+            GenericStaticHelper<string>.Value = "a generic string";
+
+            var o = container.Resolve<IOneTypeArgGenericInterface<string>>();
+            ((OtherOneArgGenericImpl<string>)o).Dependency.Should().Be("a generic string");
+        }
+
+        [Fact]
+        public void CanResolveOpenGenericToCallPrivateMethod()
+        {
+            var container = new Catalog()
+                .Register<IOneTypeArgGenericInterface<T0>>(
+                    c => new OtherOneArgGenericImpl<T0>(PrivateMakeSomething<T0>()))
+                .CreateContainer();
+
+            StaticHelper.Values[typeof(string)] = "a private string";
+
+            var o = container.Resolve<IOneTypeArgGenericInterface<string>>();
+            ((OtherOneArgGenericImpl<string>)o).Dependency.Should().Be("a private string");
+        }
+
+        [Fact]
+        public void CanResolveAllOpenAndClosedGenerics()
+        {
+            var container = new Catalog()
+                .Register<IOneTypeArgGenericInterface<T0>>(c => new OneTypeArgGenericImpl<T0>())
+                .Register<IOneTypeArgGenericInterface<T0>>("other", c => new OtherOneArgGenericImpl<T0>(c.Resolve<T0>()))
+                .Register<IOneTypeArgGenericInterface<string>>("fixed", c => new OtherOneArgGenericImpl<string>("fixed"))
+                .Register(c => "a string")
+                .CreateContainer();
+
+            var results = container.ResolveAll<IOneTypeArgGenericInterface<string>>().ToList();
+            results.Count.Should().Be(3);
+        }
+
+        private T PrivateMakeSomething<T>()
+        {
+            return StaticHelper.MakeSomething<T>();
+        }
+
         class OtherTwoTypeArgGenericImpl<TFirst, TSecond> : ITwoTypeArgGenericInterface<TFirst, TSecond>
         {
             
@@ -104,6 +182,25 @@ namespace DiceIoC.Tests.Generics
             public OtherOneArgGenericImpl(TFirst dependency)
             {
                 Dependency = dependency;
+            }
+        }
+
+        class StaticHelper
+        {
+            public static Dictionary<Type, object> Values = new Dictionary<Type, object>(); 
+            public static T MakeSomething<T>()
+            {
+                return (T) Values[typeof (T)];
+            }
+        }
+
+        class GenericStaticHelper<T>
+        {
+            public static T Value;
+
+            public static T MakeSomething()
+            {
+                return Value;
             }
         }
     }
