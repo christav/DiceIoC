@@ -31,6 +31,16 @@ namespace DiceIoC.Catalogs
             return Expression.New(newConstructor, node.Arguments.Select(Visit));
         }
 
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            if (node.NodeType == ExpressionType.Convert &&
+                GenericMarkers.IsMarkedGeneric(node.Type))
+            {
+                return Expression.Convert(Visit(node.Operand), typeConverter.OpenToClosed(node.Type));
+            }
+            return base.VisitUnary(node);
+        }
+
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             Type[] funcArgs = typeof (T).GetGenericArguments();
