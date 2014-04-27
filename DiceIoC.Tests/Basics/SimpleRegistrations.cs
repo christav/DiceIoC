@@ -2,6 +2,7 @@
 using System.Linq;
 using DiceIoC.Catalogs;
 using DiceIoC.Tests.SampleTypes;
+using DiceIoC.Tests.Utils;
 using FluentAssertions;
 using Xunit;
 

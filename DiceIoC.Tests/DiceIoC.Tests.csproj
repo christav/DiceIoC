@@ -70,6 +70,7 @@
     <Compile Include="SampleTypes\OneTypeArgGenericImpl.cs" />
     <Compile Include="SampleTypes\SimpleInterfaceImpl.cs" />
     <Compile Include="SampleTypes\TwoTypeArgGenericImpl.cs" />
+    <Compile Include="Utils\Passthrough.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

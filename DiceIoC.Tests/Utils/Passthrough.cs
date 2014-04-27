@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace DiceIoC
+namespace DiceIoC.Tests.Utils
 {
     public class Passthrough
     {

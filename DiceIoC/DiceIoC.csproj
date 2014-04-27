@@ -54,7 +54,6 @@
     <Compile Include="LifetimeContainer.cs" />
     <Compile Include="Lifetimes\Lifetime.cs" />
     <Compile Include="Lifetimes\SynchronizedLifetime.cs" />
-    <Compile Include="Passthrough.cs" />
     <Compile Include="PerResolve.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
