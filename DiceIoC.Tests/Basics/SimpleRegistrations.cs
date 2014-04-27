@@ -55,7 +55,7 @@ namespace DiceIoC.Tests.Basics
         }
 
         [Fact]
-        public void ContainerPassedToDelegateIsResolvingContainer()
+        public void ContainerPassedToDelegateIsNotResolvingContainer()
         {
             IContainer passedContainer = null;
             catalog.Register(c => new ConcreteClass(),
@@ -65,7 +65,7 @@ namespace DiceIoC.Tests.Basics
 
             var container = catalog.CreateContainer();
             container.Resolve<ConcreteClass>();
-            passedContainer.Should().BeSameAs(container);
+            passedContainer.Should().NotBeSameAs(container);
         }
 
         [Fact]
