@@ -75,6 +75,11 @@ namespace DiceIoC.Tests.Basics
         // A simple hierarchy to test out different combinations
         // of per resolve lifetimes.
         //
+
+        // Disable "Never assigned" warnings, they're false and this is
+        // just for testing
+#pragma warning disable 649
+
         private class ClassA
         {
             public ClassB B;
