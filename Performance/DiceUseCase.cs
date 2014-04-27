@@ -20,7 +20,7 @@ namespace Performance
                     c => new StockQuote(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()))
                 .Register<IDatabase>(c => new Database(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>()))
                 .Register<IErrorHandler>(c => new ErrorHandler(c.Resolve<ILogger>()))
-                .Register<ILogger>(c => new Logger(), singleton)
+                .Register<ILogger>(c => new Logger(), singleton.Lifetime)
                 .CreateContainer();
         }
         public override void Run()
@@ -41,17 +41,17 @@ namespace Performance
 
             container = new Catalog()
                 .Register<IWebService>(c => new WebService(c.Resolve<IAuthenticator>(), c.Resolve<IStockQuote>()),
-                    singleton)
+                    singleton.Lifetime)
                 .Register<IAuthenticator>(
                     c => new Authenticator(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()),
-                    singleton)
+                    singleton.Lifetime)
                 .Register<IStockQuote>(
                     c => new StockQuote(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>(), c.Resolve<IDatabase>()),
-                    singleton)
+                    singleton.Lifetime)
                 .Register<IDatabase>(c => new Database(c.Resolve<ILogger>(), c.Resolve<IErrorHandler>()),
-                    singleton)
-                .Register<IErrorHandler>(c => new ErrorHandler(c.Resolve<ILogger>()), singleton)
-                .Register<ILogger>(c => new Logger(), singleton)
+                    singleton.Lifetime)
+                .Register<IErrorHandler>(c => new ErrorHandler(c.Resolve<ILogger>()), singleton.Lifetime)
+                .Register<ILogger>(c => new Logger(), singleton.Lifetime)
                 .CreateContainer();
         }
         public override void Run()

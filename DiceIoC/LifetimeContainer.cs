@@ -79,12 +79,12 @@ namespace DiceIoC
             }
         }
 
-        private Func<Expression<Func<IContainer, object>>,
-            Expression<Func<IContainer, object>>> LifetimeModifier
+        public Func<Expression<Func<IContainer, object>>,
+            Expression<Func<IContainer, object>>> Lifetime
         {
             get
             {
-                return factory => Lifetime.RewriteForLifetime(factory, new ContainedLifetime(this));
+                return factory => Lifetimes.Lifetime.RewriteForLifetime(factory, new ContainedLifetime(this));
             }
         }
 
@@ -92,7 +92,7 @@ namespace DiceIoC
             Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>(
             LifetimeContainer lifetime)
         {
-            return lifetime.LifetimeModifier;
+            return lifetime.Lifetime;
         }
     }
 }
