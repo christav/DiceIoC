@@ -65,20 +65,7 @@ namespace DiceIoC
 
             public IEnumerable<T> ResolveAll<T>()
             {
-                List<Func<IContainer, object>> knownFactories;
-
-                lock (outerContainer.factoriesLock)
-                {
-                    if (!outerContainer.resolveAllFactories.TryGetValue(typeof(T), out knownFactories))
-                    {
-                        knownFactories =
-                            outerContainer.factories.Where(kvp => kvp.Key.Type == typeof(T)).Select(kvp => kvp.Value)
-                            .Concat(GetFactories(typeof(T)))
-                            .ToList();
-                        outerContainer.resolveAllFactories[typeof(T)] = knownFactories;
-                    }
-                }
-                return knownFactories.Select(f => (T)f(this));
+                return outerContainer.GetAllFactories<T>().Select(f => (T)f(this));
             }
 
             public IDictionary<int, object> PerResolveObjects { get { return perResolveObjects; } } 
@@ -86,47 +73,14 @@ namespace DiceIoC
             private bool TryResolve(RegistrationKey key, out object result)
             {
                 Func<IContainer, object> factory;
-                lock (outerContainer.factoriesLock)
+                if (outerContainer.TryGetFactory(key, out factory))
                 {
-                    bool found = outerContainer.factories.TryGetValue(key, out factory);
-                    if (!found)
-                    {
-                        factory = GetFactory(key);
-                        if (factory != null)
-                        {
-                            outerContainer.factories[key] = factory;
-                        }
-                        else
-                        {
-                            result = null;
-                            return false;
-                        }
-                    }
+                    result = factory(this);
+                    return true;
                 }
-                result = factory(this);
-                return true;
-            }
 
-            private Func<IContainer, object> Compile(Expression<Func<IContainer, object>> expression)
-            {
-                var visitor = new ResolveCallInliningVisitor(outerContainer.catalog);
-                var optimized = (Expression<Func<IContainer, object>>)visitor.Visit(expression);
-                return optimized.Compile();
-            }
-
-            private Func<IContainer, object> GetFactory(RegistrationKey key)
-            {
-                var factoryExpression = outerContainer.catalog.GetFactoryExpression(key);
-                if (factoryExpression != null)
-                {
-                    return Compile(factoryExpression);
-                }
-                return null;
-            }
-
-            private IEnumerable<Func<IContainer, object>> GetFactories(Type serviceType)
-            {
-                return outerContainer.catalog.GetFactoryExpressions(serviceType).Select(Compile);
+                result = null;
+                return false;
             }
         }
 
@@ -164,11 +118,50 @@ namespace DiceIoC
                 .ToDictionary(kvp => kvp.Key, kvp => Compile(kvp.Value));
         }
 
+        private bool TryGetFactory(RegistrationKey key, out Func<IContainer, object> factory)
+        {
+            lock (factoriesLock)
+            {
+                bool found = factories.TryGetValue(key, out factory);
+                if (found)
+                {
+                    return true;
+                }
+
+                var factoryExpression = catalog.GetFactoryExpression(key);
+                if (factoryExpression == null)
+                {
+                    return false;
+                }
+
+                factory = Compile(factoryExpression);
+                factories[key] = factory;
+                return true;
+            }
+        }
+
         private Func<IContainer, object> Compile(Expression<Func<IContainer, object>> expression)
         {
             var visitor = new ResolveCallInliningVisitor(catalog);
             var optimized = (Expression<Func<IContainer, object>>) visitor.Visit(expression);
             return optimized.Compile();
+        }
+
+        private IEnumerable<Func<IContainer, object>> GetAllFactories<T>()
+        {
+            List<Func<IContainer, object>> knownFactories;
+            lock (factoriesLock)
+            {
+                if (!resolveAllFactories.TryGetValue(typeof(T), out knownFactories))
+                {
+                    knownFactories =
+                        factories.Where(kvp => kvp.Key.Type == typeof(T)).Select(kvp => kvp.Value)
+                        .Concat(catalog.GetFactoryExpressions(typeof(T)).Select(Compile))
+                        .ToList();
+                    resolveAllFactories[typeof(T)] = knownFactories;
+                }
+            }
+            return knownFactories;
         }
     }
 }
