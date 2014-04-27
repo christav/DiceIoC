@@ -23,7 +23,8 @@ namespace DiceIoC
         private class ResolveTimeContainer : IContainer
         {
             private readonly Container outerContainer;
-
+            private readonly Dictionary<int, object> perResolveObjects = new Dictionary<int, object>();
+ 
             public ResolveTimeContainer(Container outerContainer)
             {
                 this.outerContainer = outerContainer;
@@ -79,6 +80,8 @@ namespace DiceIoC
                 }
                 return knownFactories.Select(f => (T)f(this));
             }
+
+            public IDictionary<int, object> PerResolveObjects { get { return perResolveObjects; } } 
 
             private bool TryResolve(RegistrationKey key, out object result)
             {
@@ -139,7 +142,7 @@ namespace DiceIoC
 
         public bool TryResolve<T>(string name, out T resolved)
         {
-            return new ResolveTimeContainer(this).TryResolve<T>(name, out resolved);
+            return new ResolveTimeContainer(this).TryResolve(name, out resolved);
         }
 
         public bool TryResolve<T>(out T resolved)
@@ -151,6 +154,8 @@ namespace DiceIoC
         {
             return new ResolveTimeContainer(this).ResolveAll<T>();
         }
+
+        public IDictionary<int, object> PerResolveObjects { get { return null; } }
 
         private void GetFactories()
         {

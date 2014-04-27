@@ -50,6 +50,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Basics\PerResolveLifetime.cs" />
     <Compile Include="Basics\SimpleRegistrations.cs" />
     <Compile Include="Basics\SingletonLifetime.cs" />
     <Compile Include="ExpressionExperiments\Expressions.cs" />
