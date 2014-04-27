@@ -11,10 +11,10 @@ namespace DiceIoC
         private readonly BasicCatalog innerCatalog = new BasicCatalog();
         private readonly OpenGenericCatalog genericCatalog = new OpenGenericCatalog();
 
-        public Catalog Register(Type serviceType, string name, Expression<Func<Container, object>> factoryExpression,
+        public Catalog Register(Type serviceType, string name, Expression<Func<IContainer, object>> factoryExpression,
             params Func<
-                Expression<Func<Container, object>>,
-                Expression<Func<Container, object>>
+                Expression<Func<IContainer, object>>,
+                Expression<Func<IContainer, object>>
             >[] modifiers)
         {
             var key = new RegistrationKey(serviceType, name);
@@ -29,19 +29,19 @@ namespace DiceIoC
             return this;
         }
 
-        public Catalog Register<T>(string name, Expression<Func<Container, T>> factoryExpression,
+        public Catalog Register<T>(string name, Expression<Func<IContainer, T>> factoryExpression,
             params Func<
-                Expression<Func<Container, object>>,
-                Expression<Func<Container, object>>
+                Expression<Func<IContainer, object>>,
+                Expression<Func<IContainer, object>>
             >[] modifiers)
         {
             return Register(typeof(T), name, CatalogBase.CastToObject(factoryExpression), modifiers);
         }
 
-        public Catalog Register<T>(Expression<Func<Container, T>> factoryExpression,
+        public Catalog Register<T>(Expression<Func<IContainer, T>> factoryExpression,
             params Func<
-                Expression<Func<Container, object>>,
-                Expression<Func<Container, object>>
+                Expression<Func<IContainer, object>>,
+                Expression<Func<IContainer, object>>
             >[] modifiers)
         {
             return Register(typeof (T), null, CatalogBase.CastToObject(factoryExpression), modifiers);
@@ -52,19 +52,19 @@ namespace DiceIoC
             return new Container(this);
         }
 
-        IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> ICatalog.GetFactoryExpressions()
+        IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<IContainer, object>>>> ICatalog.GetFactoryExpressions()
         {
             return innerCatalog.GetFactoryExpressions();
         }
 
-        IEnumerable<Expression<Func<Container, object>>> ICatalog.GetFactoryExpressions(Type serviceType)
+        IEnumerable<Expression<Func<IContainer, object>>> ICatalog.GetFactoryExpressions(Type serviceType)
         {
             return
                 innerCatalog.GetFactoryExpressions(serviceType)
                     .Concat(genericCatalog.GetFactoryExpressions(serviceType));
         }
 
-        Expression<Func<Container, object>> ICatalog.GetFactoryExpression(RegistrationKey key)
+        Expression<Func<IContainer, object>> ICatalog.GetFactoryExpression(RegistrationKey key)
         {
             return innerCatalog.GetFactoryExpression(key) ?? genericCatalog.GetFactoryExpression(key);
         }

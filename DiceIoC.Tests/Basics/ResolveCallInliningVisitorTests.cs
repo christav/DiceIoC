@@ -13,12 +13,12 @@ namespace DiceIoC.Tests.Basics
     public class ResolveCallInliningVisitorTests
     {
         private class DictionaryCatalog : ICatalog, 
-            IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>>
+            IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<IContainer, object>>>>
         {
-            private readonly Dictionary<RegistrationKey, Expression<Func<Container, object>>> factories =
-                new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
+            private readonly Dictionary<RegistrationKey, Expression<Func<IContainer, object>>> factories =
+                new Dictionary<RegistrationKey, Expression<Func<IContainer, object>>>();
 
-            public void Add(RegistrationKey key, Expression<Func<Container, object>> factory)
+            public void Add(RegistrationKey key, Expression<Func<IContainer, object>> factory)
             {
                 factories[key] = factory;
             }
@@ -28,24 +28,24 @@ namespace DiceIoC.Tests.Basics
                 return GetEnumerator();
             }
 
-            public IEnumerator<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetEnumerator()
+            public IEnumerator<KeyValuePair<RegistrationKey, Expression<Func<IContainer, object>>>> GetEnumerator()
             {
                 return factories.GetEnumerator();
             }
 
-            public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
+            public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<IContainer, object>>>> GetFactoryExpressions()
             {
                 throw new NotImplementedException();
             }
 
-            public Expression<Func<Container, object>> GetFactoryExpression(RegistrationKey key)
+            public Expression<Func<IContainer, object>> GetFactoryExpression(RegistrationKey key)
             {
-                Expression<Func<Container, object>> factory;
+                Expression<Func<IContainer, object>> factory;
                 factories.TryGetValue(key, out factory);
                 return factory;
             }
 
-            public IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType)
+            public IEnumerable<Expression<Func<IContainer, object>>> GetFactoryExpressions(Type serviceType)
             {
                 throw new NotImplementedException();
             }
@@ -55,7 +55,7 @@ namespace DiceIoC.Tests.Basics
         public void OptimizingExpressionsWithoutResolveReturnsOriginalExpression()
         {
             var factories = new DictionaryCatalog();
-            Expression<Func<Container, ConcreteClass>> e = c => new ConcreteClass();
+            Expression<Func<IContainer, ConcreteClass>> e = c => new ConcreteClass();
 
             var visitor = new ResolveCallInliningVisitor(factories);
             var e2 = visitor.Visit(e);
@@ -71,7 +71,7 @@ namespace DiceIoC.Tests.Basics
                 {RegistrationKey.For<ISimpleInterface>(null), c => new SimpleInterfaceImpl()}
             };
 
-            Expression<Func<Container, ConcreteClassWithDependencies>> e = 
+            Expression<Func<IContainer, ConcreteClassWithDependencies>> e = 
                 c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());
 
             var walker = new WalkingVisitor();
@@ -96,7 +96,7 @@ namespace DiceIoC.Tests.Basics
                 {RegistrationKey.For<ISimpleInterface>("named"), c => new SimpleInterfaceImpl()}
             };
 
-            Expression<Func<Container, ConcreteClassWithDependencies>> e =
+            Expression<Func<IContainer, ConcreteClassWithDependencies>> e =
                 c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>("named"));
 
             var walker = new WalkingVisitor();
@@ -121,13 +121,13 @@ namespace DiceIoC.Tests.Basics
                 {RegistrationKey.For<ISimpleInterface>(), c => new SimpleInterfaceImpl()}
             };
 
-            Expression<Func<Container, object>> e =
+            Expression<Func<IContainer, object>> e =
                 c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>());
 
             var visitor = new ResolveCallInliningVisitor(factories);
             var e2 = visitor.Visit(e);
 
-            var factory = ((Expression<Func<Container,object>>) e2).Compile();
+            var factory = ((Expression<Func<IContainer,object>>) e2).Compile();
             object result = factory(null);
 
             result.Should().NotBeNull();

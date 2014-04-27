@@ -31,11 +31,11 @@ namespace DiceIoC.Lifetimes
         /// <param name="lifetimeContainer">Lifetime container object that will be called by
         /// the rewritten expression.</param>
         /// <returns>The new expression.</returns>
-        public static Expression<Func<Container, object>> RewriteForLifetime<T>(
-            Expression<Func<Container, object>> factoryExpression, 
+        public static Expression<Func<IContainer, object>> RewriteForLifetime<T>(
+            Expression<Func<IContainer, object>> factoryExpression, 
             T lifetimeContainer)
         {
-            var c = Expression.Parameter(typeof(Container), "container");
+            var c = Expression.Parameter(typeof(IContainer), "container");
             var guard = Expression.Parameter(typeof(IDisposable), "guard");
             var ltm = Expression.Constant(lifetimeContainer, typeof(T));
 
@@ -47,7 +47,7 @@ namespace DiceIoC.Lifetimes
                     )
                 );
 
-            var final = Expression.Lambda<Func<Container, object>>(
+            var final = Expression.Lambda<Func<IContainer, object>>(
                 body, c);
             return final;
         }

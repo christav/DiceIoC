@@ -48,7 +48,7 @@ namespace DiceIoC.Tests.ExpressionExperiments
         [Fact]
         public void CanVisitAndFindResolveCall()
         {
-            Expression<Func<Container, string, Type, object>> expr =
+            Expression<Func<IContainer, string, Type, object>> expr =
                 (container, name, t) => new ConcreteClassWithDependencies(container.Resolve<ISimpleInterface>("withname"));
 
             var visitor = new WalkingVisitor();
@@ -59,7 +59,7 @@ namespace DiceIoC.Tests.ExpressionExperiments
 
     class WalkingVisitor : ExpressionVisitor
     {
-        private static List<MethodInfo> resolveMethods = typeof (Container).GetMethods().Where(m => m.Name == "Resolve").ToList();
+        private static List<MethodInfo> resolveMethods = typeof (IContainer).GetMethods().Where(m => m.Name == "Resolve").ToList();
         public bool found = false;
 
         protected override Expression VisitMethodCall(MethodCallExpression node)

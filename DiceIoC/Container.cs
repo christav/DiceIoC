@@ -6,10 +6,10 @@ using DiceIoC.Catalogs;
 
 namespace DiceIoC
 {
-    public class Container
+    public class Container : IContainer
     {
-        private IDictionary<RegistrationKey, Func<Container, object>> factories;
-        private readonly IDictionary<Type, List<Func<Container, object>>> resolveAllFactories = new Dictionary<Type, List<Func<Container, object>>>();
+        private IDictionary<RegistrationKey, Func<IContainer, object>> factories;
+        private readonly IDictionary<Type, List<Func<IContainer, object>>> resolveAllFactories = new Dictionary<Type, List<Func<IContainer, object>>>();
 
         private readonly ICatalog catalog;
         private readonly object factoriesLock = new object();
@@ -55,7 +55,7 @@ namespace DiceIoC
 
         public IEnumerable<T> ResolveAll<T>()
         {
-            List<Func<Container, object>> knownFactories;
+            List<Func<IContainer, object>> knownFactories;
 
             lock (factoriesLock)
             {
@@ -73,7 +73,7 @@ namespace DiceIoC
 
         private bool TryResolve(RegistrationKey key, out object result)
         {
-            Func<Container, object> factory;
+            Func<IContainer, object> factory;
             lock (factoriesLock)
             {
                 bool found = factories.TryGetValue(key, out factory);
@@ -102,14 +102,14 @@ namespace DiceIoC
                 .ToDictionary(kvp => kvp.Key, kvp => Compile(kvp.Value));
         }
 
-        private Func<Container, object> Compile(Expression<Func<Container, object>> expression)
+        private Func<IContainer, object> Compile(Expression<Func<IContainer, object>> expression)
         {
             var visitor = new ResolveCallInliningVisitor(catalog);
-            var optimized = (Expression<Func<Container, object>>) visitor.Visit(expression);
+            var optimized = (Expression<Func<IContainer, object>>) visitor.Visit(expression);
             return optimized.Compile();
         }
 
-        private Func<Container, object> GetFactory(RegistrationKey key)
+        private Func<IContainer, object> GetFactory(RegistrationKey key)
         {
             var factoryExpression = catalog.GetFactoryExpression(key);
             if (factoryExpression != null)
@@ -119,7 +119,7 @@ namespace DiceIoC
             return null;
         }
 
-        private IEnumerable<Func<Container, object>> GetFactories(Type serviceType)
+        private IEnumerable<Func<IContainer, object>> GetFactories(Type serviceType)
         {
             return catalog.GetFactoryExpressions(serviceType).Select(Compile);
         }
