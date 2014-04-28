@@ -1,17 +1,13 @@
-﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading;
-using Domain;
+﻿using System.ComponentModel;
 using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.StaticFactory;
+using Performance.Domain;
 
 namespace Performance
 {
 	[Description("UnitySingleton")]
 	public class UnitySingletonUseCase : UseCase
 	{
-		static UnityContainer container;
+		static readonly UnityContainer container;
 
 		static UnitySingletonUseCase()
 		{
@@ -23,7 +19,6 @@ namespace Performance
 			container.RegisterType<IDatabase, Database>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IErrorHandler, ErrorHandler>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ILogger, Logger>(new ContainerControlledLifetimeManager());
-
 		}
 
 		public override void Run()

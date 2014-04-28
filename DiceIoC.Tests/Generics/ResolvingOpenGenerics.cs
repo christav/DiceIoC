@@ -177,7 +177,7 @@ namespace DiceIoC.Tests.Generics
 
         class OtherOneArgGenericImpl<TFirst> : IOneTypeArgGenericInterface<TFirst>
         {
-            public TFirst Dependency;
+            public readonly TFirst Dependency;
 
             public OtherOneArgGenericImpl(TFirst dependency)
             {
@@ -185,16 +185,16 @@ namespace DiceIoC.Tests.Generics
             }
         }
 
-        class StaticHelper
+        static class StaticHelper
         {
-            public static Dictionary<Type, object> Values = new Dictionary<Type, object>(); 
+            public static readonly Dictionary<Type, object> Values = new Dictionary<Type, object>(); 
             public static T MakeSomething<T>()
             {
                 return (T) Values[typeof (T)];
             }
         }
 
-        class GenericStaticHelper<T>
+        static class GenericStaticHelper<T>
         {
             public static T Value;
 

@@ -1,14 +1,13 @@
-﻿using System;
-using Domain;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using Performance.Domain;
 
 namespace Performance
 {
 	[Description("No IOC Container Singleton")]
 	public class PlainSingletonUseCase : UseCase
 	{
-		static Authenticator authenticator;
-		static StockQuote stockQuote;
+		static readonly Authenticator authenticator;
+		static readonly StockQuote stockQuote;
 
 		static PlainSingletonUseCase()
 		{

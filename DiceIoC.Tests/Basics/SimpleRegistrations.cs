@@ -81,7 +81,7 @@ namespace DiceIoC.Tests.Basics
         public void CanRegisterWithName()
         {
             catalog.Register<ISimpleInterface>("a name", c => new SimpleInterfaceImpl());
-            catalog.Register<ConcreteClassWithDependencies>("another name",
+            catalog.Register("another name",
                 c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>("a name")));
             var container = catalog.CreateContainer();
             container.Resolve<ConcreteClassWithDependencies>("another name").Should().BeOfType<ConcreteClassWithDependencies>();
@@ -94,7 +94,7 @@ namespace DiceIoC.Tests.Basics
 
             Func<string> getName = () => "a";
 
-            catalog.Register<ConcreteClassWithDependencies>("another name",
+            catalog.Register("another name",
                 c => new ConcreteClassWithDependencies(c.Resolve<ISimpleInterface>(getName())));
             var container = catalog.CreateContainer();
             container.Resolve<ConcreteClassWithDependencies>("another name").Should().BeOfType<ConcreteClassWithDependencies>();

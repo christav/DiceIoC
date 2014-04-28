@@ -1,10 +1,8 @@
-using System;
-
-namespace Domain
+namespace Performance.Domain
 {
 	public class ErrorHandler : IErrorHandler
 	{
-		ILogger logger;
+	    readonly ILogger logger;
 
 		public ErrorHandler(ILogger logger)
 		{

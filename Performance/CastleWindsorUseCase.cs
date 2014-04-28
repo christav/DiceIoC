@@ -1,7 +1,6 @@
 ﻿using Castle.Windsor;
 using Castle.MicroKernel.Registration;
-
-using Domain;
+using Performance.Domain;
 
 namespace Performance
 {

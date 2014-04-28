@@ -1,11 +1,9 @@
-using System;
-
-namespace Domain
+namespace Performance.Domain
 {
 	public class Database : IDatabase
 	{
-		ILogger logger;
-		IErrorHandler handler;
+	    readonly ILogger logger;
+	    readonly IErrorHandler handler;
 
 		public Database(ILogger logger, IErrorHandler handler)
 		{

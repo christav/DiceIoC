@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using DiceIoC;
-using Domain;
+using Performance.Domain;
 
 namespace Performance
 {

@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Performance.Domain;
 using StructureMap;
-using Domain;
 
 namespace Performance
 {
 	[System.ComponentModel.Description("StructureMap")]
 	public class StructureMapUseCase : UseCase
 	{
-		static Container container;
+		static readonly Container container;
 
 		static StructureMapUseCase()
 		{

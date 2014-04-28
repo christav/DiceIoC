@@ -1,12 +1,10 @@
-using System;
-
-namespace Domain
+namespace Performance.Domain
 {
 	public class StockQuote : IStockQuote
 	{
-		ILogger logger;
-		IErrorHandler handler;
-		IDatabase database;
+	    readonly ILogger logger;
+	    readonly IErrorHandler handler;
+	    readonly IDatabase database;
 
 		public StockQuote(ILogger logger, IErrorHandler handler, IDatabase database)
 		{

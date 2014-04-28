@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
-using Domain;
 using Ninject;
+using Performance.Domain;
 
 namespace Performance
 {

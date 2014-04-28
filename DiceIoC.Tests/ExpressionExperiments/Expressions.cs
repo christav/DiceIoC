@@ -16,7 +16,7 @@ namespace DiceIoC.Tests.ExpressionExperiments
         [Fact]
         public void SpelunkIntoLambda()
         {
-            Expression<Func<Container, ConcreteClass>> factory = (c0) => new ConcreteClass();
+            Expression<Func<Container, ConcreteClass>> factory = c0 => new ConcreteClass();
             var c = Expression.Parameter(typeof (Container), "container");
             var name = Expression.Parameter(typeof (string), "name");
             var t = Expression.Parameter(typeof (Type), "resolvedType");
@@ -53,20 +53,20 @@ namespace DiceIoC.Tests.ExpressionExperiments
 
             var visitor = new WalkingVisitor();
             visitor.Visit(expr);
-            Assert.True(visitor.found);
+            Assert.True(visitor.Found);
         }
     }
 
     class WalkingVisitor : ExpressionVisitor
     {
-        private static List<MethodInfo> resolveMethods = typeof (IContainer).GetMethods().Where(m => m.Name == "Resolve").ToList();
-        public bool found = false;
+        private readonly static List<MethodInfo> resolveMethods = typeof (IContainer).GetMethods().Where(m => m.Name == "Resolve").ToList();
+        public bool Found = false;
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (node.Method.IsGenericMethod && resolveMethods.Contains(node.Method.GetGenericMethodDefinition()))
             {
-                found = true;
+                Found = true;
             }
             return base.VisitMethodCall(node);
         }

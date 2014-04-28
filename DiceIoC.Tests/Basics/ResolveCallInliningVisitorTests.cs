@@ -77,14 +77,14 @@ namespace DiceIoC.Tests.Basics
             var walker = new WalkingVisitor();
             walker.Visit(e);
 
-            walker.found.Should().BeTrue();
-            walker.found = false;
+            walker.Found.Should().BeTrue();
+            walker.Found = false;
 
             var visitor = new ResolveCallInliningVisitor(factories);
             var e2 = visitor.Visit(e);
 
             walker.Visit(e2);
-            walker.found.Should().BeFalse();
+            walker.Found.Should().BeFalse();
         }
 
 
@@ -102,15 +102,15 @@ namespace DiceIoC.Tests.Basics
             var walker = new WalkingVisitor();
             walker.Visit(e);
 
-            walker.found.Should().BeTrue();
+            walker.Found.Should().BeTrue();
 
-            walker.found = false;
+            walker.Found = false;
 
             var visitor = new ResolveCallInliningVisitor(factories);
             var e2 = visitor.Visit(e);
 
             walker.Visit(e2);
-            walker.found.Should().BeFalse();
+            walker.Found.Should().BeFalse();
         }
 
         [Fact]

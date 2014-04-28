@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Performance.Domain;
 using StructureMap;
-using Domain;
 
 namespace Performance
 {
 	[System.ComponentModel.Description("StructureMapSingleton")]
 	public class StructureMapSingletonUseCase : UseCase
 	{
-		static Container container;
+		static readonly Container container;
 
 		static StructureMapSingletonUseCase()
 		{

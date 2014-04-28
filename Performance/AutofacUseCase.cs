@@ -1,13 +1,12 @@
-﻿using System;
-using Autofac;
-using Domain;
+﻿using Autofac;
+using Performance.Domain;
 
 namespace Performance
 {
 	[System.ComponentModel.Description("Autofac")]
 	public class AutofacUseCase : UseCase
 	{
-		static IContainer container;
+		static readonly IContainer container;
 
 		static AutofacUseCase()
 		{

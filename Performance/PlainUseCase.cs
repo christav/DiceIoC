@@ -1,6 +1,5 @@
-﻿using System;
-using Domain;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using Performance.Domain;
 
 namespace Performance
 {

@@ -1,12 +1,10 @@
-using System;
-
-namespace Domain
+namespace Performance.Domain
 {
 	public class Authenticator : IAuthenticator
 	{
-		ILogger logger;
-		IErrorHandler handler;
-		IDatabase database;
+	    readonly ILogger logger;
+	    readonly IErrorHandler handler;
+	    readonly IDatabase database;
 
 		public Authenticator(ILogger logger, IErrorHandler handler, IDatabase database)
 		{

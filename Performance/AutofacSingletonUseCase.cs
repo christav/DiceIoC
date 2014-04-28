@@ -1,13 +1,12 @@
-﻿using System;
-using Autofac;
-using Domain;
+﻿using Autofac;
+using Performance.Domain;
 
 namespace Performance
 {
 	[System.ComponentModel.Description("AutofacSingleton")]
 	public class AutofacSingletonUseCase : UseCase
 	{
-		static IContainer container;
+		static readonly IContainer container;
 
 		static AutofacSingletonUseCase()
 		{

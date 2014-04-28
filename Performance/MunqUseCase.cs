@@ -1,15 +1,16 @@
 ﻿using System.ComponentModel;
-using Domain;
 using Munq;
 using Munq.LifetimeManagers;
+using Performance.Domain;
 
 namespace Performance
 {
     [Description("Munq")]
     class MunqUseCase : UseCase
     {
-        private static IocContainer container;
-        private static ILifetimeManager singleton;
+        private static readonly IocContainer container;
+// ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+        private static readonly ILifetimeManager singleton;
 
         static MunqUseCase()
         {
@@ -55,8 +56,9 @@ namespace Performance
     [Description("Munq Autowire")]
     class MunqAutowireUseCase : UseCase
     {
-        private static IocContainer container;
-        private static ILifetimeManager singleton;
+        private static readonly IocContainer container;
+// ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+        private static readonly ILifetimeManager singleton;
 
         static MunqAutowireUseCase()
         {
@@ -80,8 +82,9 @@ namespace Performance
     [Description("Munq Singleton")]
     class MunqSingletonUseCase : UseCase
     {
-        private static IocContainer container;
-        private static ILifetimeManager singleton;
+        private static readonly IocContainer container;
+// ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+        private static readonly ILifetimeManager  singleton;
 
         static MunqSingletonUseCase()
         {

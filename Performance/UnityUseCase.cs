@@ -1,17 +1,13 @@
-﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading;
-using Domain;
+﻿using System.ComponentModel;
 using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.StaticFactory;
+using Performance.Domain;
 
 namespace Performance
 {
 	[Description("Unity")]
 	public class UnityUseCase : UseCase
 	{
-		static UnityContainer container;
+		static readonly UnityContainer container;
 
 		static UnityUseCase()
 		{

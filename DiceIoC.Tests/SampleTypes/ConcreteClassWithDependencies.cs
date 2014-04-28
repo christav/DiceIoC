@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DiceIoC.Tests.SampleTypes
+﻿namespace DiceIoC.Tests.SampleTypes
 {
     class ConcreteClassWithDependencies
     {
+// ReSharper disable once UnusedParameter.Local
         internal ConcreteClassWithDependencies(ISimpleInterface dep)
         {
             

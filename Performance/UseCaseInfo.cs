@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace Performance
 {
@@ -7,9 +6,9 @@ namespace Performance
 	{
 		public UseCaseInfo(UseCase useCase)
 		{
-			this.Name = ((DescriptionAttribute)useCase.GetType()
+			Name = ((DescriptionAttribute)useCase.GetType()
 				.GetCustomAttributes(typeof(DescriptionAttribute), true)[0]).Description;
-			this.UseCase = useCase;
+			UseCase = useCase;
 		}
 
 		public string Name { get; private set; }

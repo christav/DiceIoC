@@ -6,7 +6,7 @@ namespace Performance
 {
     internal class Program
     {
-        private const long DefaultIterations = 10000;
+        private const long defaultIterations = 10000;
         private static long baseTicks;
 
         //static readonly List<long> batchIterations = new List<long> { 10000 };
@@ -75,7 +75,7 @@ namespace Performance
 
         private static void RunInteractive(string[] args)
         {
-            long iterations = DefaultIterations;
+            long iterations = defaultIterations;
 
             if (args.Length != 0)
                 iterations = long.Parse(args[0]);

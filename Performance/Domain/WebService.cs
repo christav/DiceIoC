@@ -1,11 +1,9 @@
-using System;
-
-namespace Domain
+namespace Performance.Domain
 {
 	public class WebService : IWebService
 	{
-		IAuthenticator authenticator;
-		IStockQuote quotes;
+	    readonly IAuthenticator authenticator;
+	    readonly IStockQuote quotes;
 
 		public WebService(IAuthenticator authenticator, IStockQuote quotes)
 		{

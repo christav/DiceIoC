@@ -1,8 +1,6 @@
-﻿using System;
-using DiceIoC.Tests.SampleTypes;
+﻿using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
 using Xunit;
-using Xunit.Extensions;
 
 namespace DiceIoC.Tests.Basics
 {
@@ -15,7 +13,7 @@ namespace DiceIoC.Tests.Basics
                 .Register<ISimpleInterface>(c => new SimpleInterfaceImpl(), PerResolve.Lifetime)
                 .CreateContainer();
 
-            ISimpleInterface o = container.Resolve<ISimpleInterface>();
+            var o = container.Resolve<ISimpleInterface>();
 
             o.Should().BeOfType<SimpleInterfaceImpl>();
         }
@@ -27,8 +25,8 @@ namespace DiceIoC.Tests.Basics
                 .Register<ISimpleInterface>(c => new SimpleInterfaceImpl(), PerResolve.Lifetime)
                 .CreateContainer();
 
-            ISimpleInterface o1 = container.Resolve<ISimpleInterface>();
-            ISimpleInterface o2 = container.Resolve<ISimpleInterface>();
+            var o1 = container.Resolve<ISimpleInterface>();
+            var o2 = container.Resolve<ISimpleInterface>();
 
             o1.Should().NotBeSameAs(o2);
         }

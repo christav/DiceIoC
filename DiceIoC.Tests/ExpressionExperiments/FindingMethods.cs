@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
+﻿using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -10,6 +8,9 @@ namespace DiceIoC.Tests.ExpressionExperiments
     {
         private class OverloadedStaticMethods
         {
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedParameter.Local
+            // Methods & parameters used via reflection
             public static void Method1(int arg)
             {
             }
@@ -28,6 +29,8 @@ namespace DiceIoC.Tests.ExpressionExperiments
             {
                 
             }
+// ReSharper restore UnusedParameter.Local
+// ReSharper restore UnusedMember.Local
         }
 
         [Fact]

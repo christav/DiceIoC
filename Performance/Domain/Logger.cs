@@ -1,6 +1,4 @@
-using System;
-
-namespace Domain
+namespace Performance.Domain
 {
 	public class Logger : ILogger
 	{

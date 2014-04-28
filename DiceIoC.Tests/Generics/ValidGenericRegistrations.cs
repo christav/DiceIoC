@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices.ComTypes;
 using DiceIoC.Catalogs;
 using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
