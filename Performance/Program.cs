@@ -37,7 +37,7 @@ namespace Performance
             new UnitySingletonUseCase(),
             new DiceSingletonUseCase(),
             new MunqSingletonUseCase(),
-            new AutofacSingletoncUseCase(),
+            new AutofacSingletonUseCase(),
             new StructureMapSingletonUseCase(),
             new CastleWindsorSingletonUseCase(),
             new NinjectSingletonUseCase(),

@@ -79,7 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActivatorUseCase.cs" />
-    <Compile Include="AutofacSingletoncUseCase.cs" />
+    <Compile Include="AutofacSingletonUseCase.cs" />
     <Compile Include="AutofacUseCase.cs" />
     <Compile Include="CastleWindsorUseCase.cs" />
     <Compile Include="DiceUseCase.cs" />
@@ -104,7 +104,7 @@
     <Compile Include="StructureMapSingletonUseCase.cs" />
     <Compile Include="StructureMapUseCase.cs" />
     <Compile Include="UnityUseCase.cs" />
-    <Compile Include="UnityUseCase1.cs" />
+    <Compile Include="UnitySingletonUseCase.cs" />
     <Compile Include="UseCase.cs" />
     <Compile Include="UseCaseInfo.cs" />
   </ItemGroup>

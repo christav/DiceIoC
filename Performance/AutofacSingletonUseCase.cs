@@ -5,11 +5,11 @@ using Domain;
 namespace Performance
 {
 	[System.ComponentModel.Description("AutofacSingleton")]
-	public class AutofacSingletoncUseCase : UseCase
+	public class AutofacSingletonUseCase : UseCase
 	{
 		static IContainer container;
 
-		static AutofacSingletoncUseCase()
+		static AutofacSingletonUseCase()
 		{
 			var builder = new ContainerBuilder();
 			builder.Register<IWebService>(
