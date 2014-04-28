@@ -47,6 +47,7 @@
     <Compile Include="Catalogs\OpenGenericCatalog.cs" />
     <Compile Include="Catalogs\RegistrationKey.cs" />
     <Compile Include="Catalogs\ResolveCallInliningVisitor.cs" />
+    <Compile Include="Catalogs\WithModifierRegistrar.cs" />
     <Compile Include="Container.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="GenericParameterMarkerTypes.cs" />

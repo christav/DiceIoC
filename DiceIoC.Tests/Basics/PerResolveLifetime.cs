@@ -37,10 +37,11 @@ namespace DiceIoC.Tests.Basics
         public void SeparatePerResolveDependenciesResolveCorrectly()
         {
             var container = new Catalog()
-                .Register(c => new ClassA() {B = c.Resolve<ClassB>(), C = c.Resolve<ClassC>(), D = c.Resolve<ClassD>()})
-                .Register(c => new ClassB(), PerResolve.Lifetime)
-                .Register(c => new ClassC() {B = c.Resolve<ClassB>(), D = c.Resolve<ClassD>()})
-                .Register(c => new ClassD(), PerResolve.Lifetime)
+                .Register(c => new ClassA {B = c.Resolve<ClassB>(), C = c.Resolve<ClassC>(), D = c.Resolve<ClassD>()})
+                .Register(c => new ClassC { B = c.Resolve<ClassB>(), D = c.Resolve<ClassD>() })
+                .With(() => PerResolve.Lifetime, r => 
+                    r.Register(c => new ClassB())
+                    .Register(c => new ClassD()))
                 .CreateContainer();
 
             var objA = container.Resolve<ClassA>();
@@ -52,10 +53,11 @@ namespace DiceIoC.Tests.Basics
         public void MutipleResolvesWithMultiplePerResolveDependenciesGiveSeparateObjects()
         {
             var container = new Catalog()
-                .Register(c => new ClassA() { B = c.Resolve<ClassB>(), C = c.Resolve<ClassC>(), D = c.Resolve<ClassD>() })
-                .Register(c => new ClassB(), PerResolve.Lifetime)
-                .Register(c => new ClassC() { B = c.Resolve<ClassB>(), D = c.Resolve<ClassD>() })
-                .Register(c => new ClassD(), PerResolve.Lifetime)
+                .Register(c => new ClassA { B = c.Resolve<ClassB>(), C = c.Resolve<ClassC>(), D = c.Resolve<ClassD>() })
+                .Register(c => new ClassC { B = c.Resolve<ClassB>(), D = c.Resolve<ClassD>() })
+                .With(() => PerResolve.Lifetime, r =>
+                    r.Register(c => new ClassB())
+                    .Register(c => new ClassD()))
                 .CreateContainer();
 
             var objA1 = container.Resolve<ClassA>();

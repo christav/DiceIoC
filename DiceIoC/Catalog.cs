@@ -47,6 +47,15 @@ namespace DiceIoC
             return Register(typeof (T), null, CatalogBase.CastToObject(factoryExpression), modifiers);
         }
 
+        public Catalog With(Func<Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>> modifierFactory,
+            Action<IRegistrar> registrations)
+        {
+            var registrar = new WithModifierRegistrar(modifierFactory);
+            registrations(registrar);
+            registrar.Register(this);
+            return this;
+        }
+
         public Container CreateContainer()
         {
             return new Container(this);

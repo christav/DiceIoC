@@ -1,5 +1,4 @@
-﻿using System;
-using DiceIoC.Tests.SampleTypes;
+﻿using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
 using Xunit;
 
@@ -14,7 +13,7 @@ namespace DiceIoC.Tests.Basics
             using (var singleton = new LifetimeContainer())
             {
                 catalog.Register(c => new ConcreteClass(), singleton);
-                var container = catalog.CreateContainer();
+                Assert.DoesNotThrow(() => catalog.CreateContainer());
             }
         }
 
@@ -51,6 +50,22 @@ namespace DiceIoC.Tests.Basics
             }
 
             Assert.True(o1.Disposed);
+        }
+
+        [Fact]
+        public void WithSingletonRegistrationGivesSingletons()
+        {
+            using (var singleton = new LifetimeContainer())
+            {
+                var container = new Catalog()
+// ReSharper disable once AccessToDisposedClosure
+                    .With(() => singleton.Lifetime, r => r.Register(c => new ConcreteClass()))
+                    .CreateContainer();
+                var o1 = container.Resolve<ConcreteClass>();
+                var o2 = container.Resolve<ConcreteClass>();
+
+                o1.Should().BeSameAs(o2);
+            }
         }
     }
 }
