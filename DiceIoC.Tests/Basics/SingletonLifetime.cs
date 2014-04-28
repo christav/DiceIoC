@@ -53,6 +53,24 @@ namespace DiceIoC.Tests.Basics
         }
 
         [Fact]
+        public void ClearOfSingletonDisposesInstances()
+        {
+            var singleton = new LifetimeContainer();
+            var container = new Catalog()
+                .Register(c => new ConcreteClass(), singleton)
+                .CreateContainer();
+
+            var o1 = container.Resolve<ConcreteClass>();
+            singleton.Clear();
+            o1.Disposed.Should().BeTrue();
+
+            var o2 = container.Resolve<ConcreteClass>();
+
+            o2.Should().NotBeSameAs(o1);
+            o2.Disposed.Should().BeFalse();
+        }
+
+        [Fact]
         public void WithSingletonRegistrationGivesSingletons()
         {
             using (var singleton = new LifetimeContainer())

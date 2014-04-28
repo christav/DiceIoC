@@ -116,7 +116,7 @@ namespace DiceIoC
 
         public T Resolve<T>()
         {
-            return Resolve<T>(null);
+            return new ResolveTimeContainer(this).Resolve<T>();
         }
 
         public bool TryResolve<T>(string name, out T resolved)
@@ -126,7 +126,7 @@ namespace DiceIoC
 
         public bool TryResolve<T>(out T resolved)
         {
-            return TryResolve(null, out resolved);
+            return new ResolveTimeContainer(this).TryResolve(out resolved);
         }
 
         public IEnumerable<T> ResolveAll<T>()
@@ -141,7 +141,7 @@ namespace DiceIoC
 
         public object Resolve(Type serviceType)
         {
-            return Resolve(serviceType, null);
+            return new ResolveTimeContainer(this).Resolve(serviceType);
         }
 
         public bool TryResolve(Type serviceType, string name, out object resolved)
@@ -151,7 +151,7 @@ namespace DiceIoC
 
         public bool TryResolve(Type serviceType, out object resolved)
         {
-            return TryResolve(serviceType, null, out resolved);
+            return new ResolveTimeContainer(this).TryResolve(serviceType, out resolved);
         }
 
         public IEnumerable<object> ResolveAll(Type serviceType)
