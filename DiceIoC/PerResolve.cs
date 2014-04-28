@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace DiceIoC
 {
@@ -8,7 +9,6 @@ namespace DiceIoC
     /// </summary>
     public static class PerResolve
     {
-        private static readonly object keyLock = new object();
         private static int nextKey = 1;
 
         private class PerResolveLifetimeManager
@@ -17,10 +17,7 @@ namespace DiceIoC
 
             public PerResolveLifetimeManager()
             {
-                lock (keyLock)
-                {
-                    key = nextKey++;
-                }
+                key = Interlocked.Increment(ref nextKey);
             }
 
 // ReSharper disable once UnusedMember.Local
