@@ -30,20 +30,30 @@ namespace DiceIoC
                 this.outerContainer = outerContainer;
             }
 
-            public T Resolve<T>(string name)
+            public object Resolve(Type serviceType, string name)
             {
-                T resolved;
-                if (!TryResolve(name, out resolved))
+                object resolved;
+                if (!TryResolve(serviceType, name, out resolved))
                 {
                     throw new ArgumentException(string.Format("The Name/Type {0}/{1} is not registered", name,
-                                                              typeof(T).Name));
+                                                              serviceType.Name));
                 }
                 return resolved;
+            }
+
+            public T Resolve<T>(string name)
+            {
+                return (T) Resolve(typeof (T), name);
             }
 
             public T Resolve<T>()
             {
                 return Resolve<T>(null);
+            }
+
+            public object Resolve(Type serviceType)
+            {
+                return Resolve(serviceType, null);
             }
 
             public bool TryResolve<T>(string name, out T resolved)
@@ -58,15 +68,30 @@ namespace DiceIoC
                 return succeeded;
             }
 
+            public bool TryResolve(Type serviceType, string name, out object resolved)
+            {
+                return TryResolve(new RegistrationKey(serviceType, name), out resolved);
+            }
+
             public bool TryResolve<T>(out T resolved)
             {
                 return TryResolve(null, out resolved);
             }
 
+            public bool TryResolve(Type serviceType, out object resolved)
+            {
+                return TryResolve(new RegistrationKey(serviceType, null), out resolved);
+            }
+
             public IEnumerable<T> ResolveAll<T>()
             {
-                return outerContainer.GetAllFactories<T>().Select(f => (T)f(this));
+                return ResolveAll(typeof (T)).Cast<T>();
             }
+
+            public IEnumerable<object> ResolveAll(Type serviceType)
+            {
+                return outerContainer.GetAllFactories(serviceType).Select(f => f(this));
+            } 
 
             public IDictionary<int, object> PerResolveObjects { get { return perResolveObjects; } } 
 
@@ -109,6 +134,31 @@ namespace DiceIoC
             return new ResolveTimeContainer(this).ResolveAll<T>();
         }
 
+        public object Resolve(Type serviceType, string name)
+        {
+            return new ResolveTimeContainer(this).Resolve(serviceType, name);
+        }
+
+        public object Resolve(Type serviceType)
+        {
+            return Resolve(serviceType, null);
+        }
+
+        public bool TryResolve(Type serviceType, string name, out object resolved)
+        {
+            return new ResolveTimeContainer(this).TryResolve(serviceType, name, out resolved);
+        }
+
+        public bool TryResolve(Type serviceType, out object resolved)
+        {
+            return TryResolve(serviceType, null, out resolved);
+        }
+
+        public IEnumerable<object> ResolveAll(Type serviceType)
+        {
+            return new ResolveTimeContainer(this).ResolveAll(serviceType);
+        }
+
         public IDictionary<int, object> PerResolveObjects { get { return null; } }
 
         private void GetFactories()
@@ -147,21 +197,23 @@ namespace DiceIoC
             return optimized.Compile();
         }
 
-        private IEnumerable<Func<IContainer, object>> GetAllFactories<T>()
+        private IEnumerable<Func<IContainer, object>> GetAllFactories(Type serviceType)
         {
             List<Func<IContainer, object>> knownFactories;
             lock (factoriesLock)
             {
-                if (!resolveAllFactories.TryGetValue(typeof(T), out knownFactories))
+                if (!resolveAllFactories.TryGetValue(serviceType, out knownFactories))
                 {
                     knownFactories =
-                        factories.Where(kvp => kvp.Key.Type == typeof(T)).Select(kvp => kvp.Value)
-                        .Concat(catalog.GetFactoryExpressions(typeof(T)).Select(Compile))
+                        factories.Where(kvp => kvp.Key.Type == serviceType).Select(kvp => kvp.Value)
+                        .Concat(catalog.GetFactoryExpressions(serviceType).Select(Compile))
                         .ToList();
-                    resolveAllFactories[typeof(T)] = knownFactories;
+                    resolveAllFactories[serviceType] = knownFactories;
                 }
             }
             return knownFactories;
         }
+
+        
     }
 }
