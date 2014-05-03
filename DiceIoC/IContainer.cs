@@ -20,6 +20,7 @@ namespace DiceIoC
         IEnumerable<T> ResolveAll<T>();
         IEnumerable<object> ResolveAll(Type serviceType);
 
-        IDictionary<int, object> PerResolveObjects { get; } 
+        IDictionary<int, object> PerResolveObjects { get; }
+        LifetimeScope CurrentScope { get; }
     }
 }

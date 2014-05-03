@@ -93,7 +93,9 @@ namespace DiceIoC
                 return outerContainer.GetAllFactories(serviceType).Select(f => f(this));
             } 
 
-            public IDictionary<int, object> PerResolveObjects { get { return perResolveObjects; } } 
+            public IDictionary<int, object> PerResolveObjects { get { return perResolveObjects; } }
+
+            public LifetimeScope CurrentScope { get { return outerContainer.CurrentScope; } }
 
             private bool TryResolve(RegistrationKey key, out object result)
             {
@@ -160,6 +162,8 @@ namespace DiceIoC
         }
 
         public IDictionary<int, object> PerResolveObjects { get { return null; } }
+
+        public LifetimeScope CurrentScope { get; set; }
 
         private void GetFactories()
         {
