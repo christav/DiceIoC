@@ -13,11 +13,21 @@ namespace DiceIoC
 
         private readonly ICatalog catalog;
         private readonly object factoriesLock = new object();
+        private readonly IScopedLifetime scope;
 
         internal Container(ICatalog catalog)
         {
             this.catalog = catalog;
             GetFactories();
+        }
+
+        private Container(Container outer, IScopedLifetime scope)
+        {
+            factories = outer.factories;
+            resolveAllFactories = outer.resolveAllFactories;
+            catalog = outer.catalog;
+            factoriesLock = outer.factoriesLock;
+            this.scope = scope;
         }
 
         private class ResolveTimeContainer : IContainer
@@ -91,7 +101,12 @@ namespace DiceIoC
             public IEnumerable<object> ResolveAll(Type serviceType)
             {
                 return outerContainer.GetAllFactories(serviceType).Select(f => f(this));
-            } 
+            }
+
+            public IContainer InScope(IScopedLifetime scope)
+            {
+                throw new InvalidOperationException("Cannot change scope during a resolve");
+            }
 
             public IDictionary<int, object> PerResolveObjects { get { return perResolveObjects; } }
 
@@ -161,9 +176,14 @@ namespace DiceIoC
             return new ResolveTimeContainer(this).ResolveAll(serviceType);
         }
 
+        public IContainer InScope(IScopedLifetime scope)
+        {
+            return new Container(this, scope);
+        }
+
         public IDictionary<int, object> PerResolveObjects { get { return null; } }
 
-        public IScopedLifetime CurrentScope { get; set; }
+        public IScopedLifetime CurrentScope { get { return scope; } }
 
         private void GetFactories()
         {

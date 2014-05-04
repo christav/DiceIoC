@@ -9,11 +9,15 @@ namespace DiceIoC
 {
     public sealed class LifetimeScope : IScopedLifetime, IDisposable
     {
-        private readonly Dictionary<int, object> objects = new Dictionary<int, object>();
+        private Dictionary<int, object> objects = new Dictionary<int, object>();
 
         public void Dispose()
         {
-
+            foreach (IDisposable d in objects.Values.OfType<IDisposable>())
+            {
+                d.Dispose();
+            }
+            objects = new Dictionary<int, object>();
         }
 
         public IDisposable Enter()
