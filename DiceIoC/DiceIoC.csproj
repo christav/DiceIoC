@@ -55,6 +55,7 @@
     <Compile Include="IScopedLifetime.cs" />
     <Compile Include="LifetimeContainer.cs" />
     <Compile Include="LifetimeScope.cs" />
+    <Compile Include="LifetimeScopeBase.cs" />
     <Compile Include="Lifetimes\Lifetime.cs" />
     <Compile Include="Lifetimes\LockUnlockDispose.cs" />
     <Compile Include="Lifetimes\SynchronizedLifetime.cs" />
@@ -62,6 +63,8 @@
     <Compile Include="PerResolve.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scope.cs" />
+    <Compile Include="Lifetimes\ScopedLifetimeManager.cs" />
+    <Compile Include="ThreadsafeLifetimeScope.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
