@@ -5,16 +5,8 @@ using Xunit;
 
 namespace DiceIoC.Tests.Basics
 {
-    public class ScopeLifetime : IDisposable
+    public class ScopeLifetime
     {
-        public ScopeLifetime()
-        {
-        }
-
-        public void Dispose()
-        {
-        }
-
         [Fact]
         public void CanRegisterWithScopedLifetimeShouldCompile()
         {

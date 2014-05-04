@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace DiceIoC
 {
@@ -10,7 +7,10 @@ namespace DiceIoC
     {
         public static Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>> Lifetime
         {
-            get { return e => e; }
+            get
+            {
+                return factory => Lifetimes.Lifetime.RewriteForLifetime(factory, new ScopedLifetimeManager());
+            }
         }
     }
 }

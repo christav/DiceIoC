@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 namespace DiceIoC.Lifetimes
 {
@@ -11,25 +10,9 @@ namespace DiceIoC.Lifetimes
     {
         private readonly object padLock = new object();
 
-        private class PadLock : IDisposable
+        public IDisposable Enter(IContainer container)
         {
-            private readonly object padLock;
-
-            public PadLock(object padLock)
-            {
-                this.padLock = padLock;
-                Monitor.Enter(padLock);
-            }
-
-            public void Dispose()
-            {
-                Monitor.Exit(padLock);
-            }
-        }
-
-        public IDisposable Enter()
-        {
-            return new PadLock(padLock);
+            return new LockUnlockDispose(padLock);
         }
     }
 }

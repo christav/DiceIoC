@@ -3,17 +3,49 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using DiceIoC.Lifetimes;
 
 namespace DiceIoC
 {
-    public sealed class LifetimeScope : IDisposable
+    public sealed class LifetimeScope : IScopedLifetime, IDisposable
     {
-        private static int nextKey = 1;
         private readonly Dictionary<int, object> objects = new Dictionary<int, object>();
 
         public void Dispose()
         {
-            
+
+        }
+
+        public IDisposable Enter()
+        {
+            return new NoopDispose();
+        }
+
+        public object GetValue(int key)
+        {
+            object result;
+            if (objects.TryGetValue(key, out result))
+            {
+                return result;
+            }
+            return null;
+        }
+
+        public object SetValue(int key, object value)
+        {
+            objects[key] = value;
+            return value;
+        }
+    }
+
+    public class ScopedLifetimeManager
+    {
+        private static int nextKey = 1;
+        private readonly int key;
+
+        public ScopedLifetimeManager()
+        {
+            this.key = Interlocked.Increment(ref nextKey);
         }
 
         private static void EnsureScope(IContainer container)
@@ -24,34 +56,22 @@ namespace DiceIoC
             }
         }
 
-        internal class ScopedLifetimeManager
+        public IDisposable Enter(IContainer container)
         {
-            private int key;
+            EnsureScope(container);
+            return container.CurrentScope.Enter();
+        }
 
-            public ScopedLifetimeManager()
-            {
-                key = Interlocked.Increment(ref LifetimeScope.nextKey);
-            }
+        public object GetValue(IContainer container)
+        {
+            EnsureScope(container);
+            return container.CurrentScope.GetValue(key);
+        }
 
-            public object GetValue(IContainer container)
-            {
-                EnsureScope(container);
-                object value;
-
-                if (container.CurrentScope.objects.TryGetValue(key, out value))
-                {
-                    return value;
-                }
-                return null;
-            }
-
-            public object SetValue(object value, IContainer container)
-            {
-                EnsureScope(container);
-
-                container.CurrentScope.objects[key] = value;
-                return value;
-            }
+        public object SetValue(object value, IContainer container)
+        {
+            EnsureScope(container);
+            return container.CurrentScope.SetValue(key, value);
         }
     }
 }

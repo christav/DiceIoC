@@ -8,7 +8,7 @@ namespace DiceIoC.Lifetimes
     /// modifier for use in registration. A lifetime manager
     /// is any object that implements the following methods:
     /// 
-    /// IDisposable Enter();
+    /// IDisposable Enter(IContainer c);
     /// object GetValue(IContainer c);
     /// object SetValue(object value, IContainer c);
     /// 
@@ -61,7 +61,7 @@ namespace DiceIoC.Lifetimes
             var ltm = Expression.Constant(lifetimeManager, typeof(T));
 
             var body = Expression.Block(new[] { guard },
-                CreateGuard(guard, ltm),
+                CreateGuard(guard, container, ltm),
                 Expression.TryFinally(
                     GetSetValueExpression(factoryExpression, container, ltm),
                     Expression.Call(guard, "Dispose", null)
@@ -79,10 +79,10 @@ namespace DiceIoC.Lifetimes
             return GetSetValueExpression(factoryExpression, container, ltm);
         }
 
-        private static Expression CreateGuard(ParameterExpression guardVariable, ConstantExpression ltm)
+        private static Expression CreateGuard(ParameterExpression guardVariable, ParameterExpression container, ConstantExpression ltm)
         {
             return Expression.Assign(guardVariable,
-                Expression.Call(ltm, "Enter", null));
+                Expression.Call(ltm, "Enter", null, container));
         }
 
         private static Expression GetSetValueExpression(Expression factory, ParameterExpression container, ConstantExpression ltm)
