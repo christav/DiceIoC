@@ -28,14 +28,7 @@ namespace DiceIoC
         {
             object result;
             bool succeeded = TryResolve(typeof (T), name, out result);
-            if (succeeded)
-            {
-                resolved = (T) result;
-            }
-            else
-            {
-                resolved = default(T);
-            }
+            resolved = succeeded ? (T) result : default(T);
             return succeeded;
         }
 
