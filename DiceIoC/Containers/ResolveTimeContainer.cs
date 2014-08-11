@@ -39,7 +39,7 @@ namespace DiceIoC.Containers
             return factories.GetAllFactories(serviceType).Select(f => f(this));
         }
 
-        public override IContainer InScope(IScopedLifetime scope)
+        public override Container InScope(IScopedLifetime scope)
         {
             throw new InvalidOperationException("Cannot change scope during a resolve");
         }
@@ -50,7 +50,7 @@ namespace DiceIoC.Containers
 
         private bool TryResolve(RegistrationKey key, out object result)
         {
-            Func<IContainer, object> factory;
+            Func<Container, object> factory;
             if (factories.TryGetFactory(key, out factory))
             {
                 result = factory(this);

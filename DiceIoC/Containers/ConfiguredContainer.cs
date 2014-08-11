@@ -36,7 +36,7 @@ namespace DiceIoC.Containers
             return new ResolveTimeContainer(factories, scope).ResolveAll(serviceType);
         }
 
-        public override IContainer InScope(IScopedLifetime scope)
+        public override Container InScope(IScopedLifetime scope)
         {
             return new ConfiguredContainer(this, scope);
         }

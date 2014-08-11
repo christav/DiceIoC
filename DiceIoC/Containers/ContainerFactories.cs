@@ -8,8 +8,8 @@ namespace DiceIoC.Containers
 {
     class ContainerFactories
     {
-        private IDictionary<RegistrationKey, Func<IContainer, object>> factories;
-        private readonly IDictionary<Type, List<Func<IContainer, object>>> resolveAllFactories = new Dictionary<Type, List<Func<IContainer, object>>>();
+        private IDictionary<RegistrationKey, Func<Container, object>> factories;
+        private readonly IDictionary<Type, List<Func<Container, object>>> resolveAllFactories = new Dictionary<Type, List<Func<Container, object>>>();
         private readonly ICatalog catalog;
         private readonly object factoriesLock = new object();
 
@@ -19,7 +19,7 @@ namespace DiceIoC.Containers
             GetFactories();
         }
 
-        internal bool TryGetFactory(RegistrationKey key, out Func<IContainer, object> factory)
+        internal bool TryGetFactory(RegistrationKey key, out Func<Container, object> factory)
         {
             lock (factoriesLock)
             {
@@ -41,9 +41,9 @@ namespace DiceIoC.Containers
             }
         }
 
-        internal IEnumerable<Func<IContainer, object>> GetAllFactories(Type serviceType)
+        internal IEnumerable<Func<Container, object>> GetAllFactories(Type serviceType)
         {
-            List<Func<IContainer, object>> knownFactories;
+            List<Func<Container, object>> knownFactories;
             lock (factoriesLock)
             {
                 if (!resolveAllFactories.TryGetValue(serviceType, out knownFactories))
@@ -65,10 +65,10 @@ namespace DiceIoC.Containers
                 .ToDictionary(kvp => kvp.Key, kvp => Compile(kvp.Value));
         }
 
-        private Func<IContainer, object> Compile(Expression<Func<IContainer, object>> expression)
+        private Func<Container, object> Compile(Expression<Func<Container, object>> expression)
         {
             var visitor = new ResolveCallInliningVisitor(catalog);
-            var optimized = (Expression<Func<IContainer, object>>)visitor.Visit(expression);
+            var optimized = (Expression<Func<Container, object>>)visitor.Visit(expression);
             return optimized.Compile();
         }
     }

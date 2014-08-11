@@ -25,13 +25,13 @@ namespace DiceIoC.Catalogs
         }
 
         private static readonly MethodInfo resolveWithNameMethod =
-            typeof (IContainer).GetMethods()
+            typeof (Container).GetMethods()
                 .Where(m => m.Name == "Resolve" && m.GetParameters().Length == 1)
                 .Select(m => m.GetGenericMethodDefinition())
                 .First();
 
         private static readonly MethodInfo resolveDefaultMethod =
-            typeof (IContainer).GetMethods()
+            typeof (Container).GetMethods()
                 .Where(m => m.Name == "Resolve" && m.GetParameters().Length == 0)
                 .Select(m => m.GetGenericMethodDefinition())
                 .First();

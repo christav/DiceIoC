@@ -5,25 +5,25 @@ namespace DiceIoC.Tests.Utils
 {
     public class Passthrough
     {
-        private readonly Action<IContainer> action;
+        private readonly Action<Container> action;
 
-        private Passthrough(Action<IContainer> action)
+        private Passthrough(Action<Container> action)
         {
             this.action = action;
         }
 
-        private Expression<Func<IContainer, object>> ActionModifier(Expression<Func<IContainer, object>> factoryExpression)
+        private Expression<Func<Container, object>> ActionModifier(Expression<Func<Container, object>> factoryExpression)
         {
-            var c = Expression.Parameter(typeof (IContainer), "IContainer");
+            var c = Expression.Parameter(typeof (Container), "Container");
 
-            var actionExpression = Expression.Constant(action, typeof (Action<IContainer>));
+            var actionExpression = Expression.Constant(action, typeof (Action<Container>));
             var body = Expression.Block(typeof (object),
                 Expression.Call(actionExpression, "Invoke", null, c),
                 Expression.Invoke(factoryExpression, c));
-            return Expression.Lambda<Func<IContainer, object>>(body, c);
+            return Expression.Lambda<Func<Container, object>>(body, c);
         }
 
-        public static Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>> Modifier(Action<IContainer> action)
+        public static Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>> Modifier(Action<Container> action)
         {
             return new Passthrough(action).ActionModifier;
         }

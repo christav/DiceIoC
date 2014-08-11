@@ -13,7 +13,7 @@ namespace DiceIoC.Lifetimes
             this.key = Interlocked.Increment(ref nextKey);
         }
 
-        private static void EnsureScope(IContainer container)
+        private static void EnsureScope(Container container)
         {
             if (container.CurrentScope == null)
             {
@@ -21,19 +21,19 @@ namespace DiceIoC.Lifetimes
             }
         }
 
-        public IDisposable Enter(IContainer container)
+        public IDisposable Enter(Container container)
         {
             EnsureScope(container);
             return container.CurrentScope.Enter();
         }
 
-        public object GetValue(IContainer container)
+        public object GetValue(Container container)
         {
             EnsureScope(container);
             return container.CurrentScope.GetValue(key);
         }
 
-        public object SetValue(object value, IContainer container)
+        public object SetValue(object value, Container container)
         {
             EnsureScope(container);
             return container.CurrentScope.SetValue(key, value);

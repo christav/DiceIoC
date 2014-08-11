@@ -6,7 +6,7 @@ namespace DiceIoC
 {
     public static class Scope
     {
-        public static Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>> Lifetime
+        public static Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>> Lifetime
         {
             get
             {

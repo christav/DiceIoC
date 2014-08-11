@@ -6,22 +6,22 @@ namespace DiceIoC.Catalogs
     public interface IRegistrar
     {
         IRegistrar Register(Type serviceType, string name,
-            Expression<Func<IContainer, object>> factoryExpression,
+            Expression<Func<Container, object>> factoryExpression,
             params Func<
-                Expression<Func<IContainer, object>>,
-                Expression<Func<IContainer, object>>
+                Expression<Func<Container, object>>,
+                Expression<Func<Container, object>>
             >[] modifiers);
 
-        IRegistrar Register<TService>(string name, Expression<Func<IContainer, TService>> factoryExpression,
+        IRegistrar Register<TService>(string name, Expression<Func<Container, TService>> factoryExpression,
             params Func<
-                Expression<Func<IContainer, object>>,
-                Expression<Func<IContainer, object>>
+                Expression<Func<Container, object>>,
+                Expression<Func<Container, object>>
             >[] modifiers);
 
-        IRegistrar Register<TService>(Expression<Func<IContainer, TService>> factoryExpression,
+        IRegistrar Register<TService>(Expression<Func<Container, TService>> factoryExpression,
             params Func<
-                Expression<Func<IContainer, object>>,
-                Expression<Func<IContainer, object>>
+                Expression<Func<Container, object>>,
+                Expression<Func<Container, object>>
             >[] modifiers);
     }
 }

@@ -10,7 +10,7 @@ namespace DiceIoC.Lifetimes
     {
         private readonly object padLock = new object();
 
-        public IDisposable Enter(IContainer container)
+        public IDisposable Enter(Container container)
         {
             return new LockUnlockDispose(padLock);
         }

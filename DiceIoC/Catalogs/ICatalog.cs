@@ -15,7 +15,7 @@ namespace DiceIoC.Catalogs
         /// Get the set of factory expressions registered in this catalog.
         /// </summary>
         /// <returns>Currently registered factories.</returns>
-        IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<IContainer, object>>>>
+        IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>>
             GetFactoryExpressions();
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace DiceIoC.Catalogs
         /// </summary>
         /// <param name="key">The key to the type/name pair desired.</param>
         /// <returns>The factory expression, or null if no factory can be found or created.</returns>
-        Expression<Func<IContainer, object>> GetFactoryExpression(RegistrationKey key);
+        Expression<Func<Container, object>> GetFactoryExpression(RegistrationKey key);
 
         /// <summary>
         /// Get all the factory expressions for a known service type regardless of name.
@@ -31,6 +31,6 @@ namespace DiceIoC.Catalogs
         /// </summary>
         /// <param name="serviceType">Type to get factories for.</param>
         /// <returns>The set of factories.</returns>
-        IEnumerable<Expression<Func<IContainer, object>>> GetFactoryExpressions(Type serviceType);
+        IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType);
     }
 }

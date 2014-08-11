@@ -7,29 +7,29 @@ namespace DiceIoC.Catalogs
 {
     internal class WithModifierRegistrar : CatalogBase
     {
-        private readonly Func<Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>> defaultModifierFactory;
+        private readonly Func<Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>> defaultModifierFactory;
 
         private readonly List<Tuple<
                 Type,
                 string, 
-                Expression<Func<IContainer, object>>,
-                Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>[]>>
-            registrations = new List<Tuple<Type, string, Expression<Func<IContainer, object>>, Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>[]>>();
+                Expression<Func<Container, object>>,
+                Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>[]>>
+            registrations = new List<Tuple<Type, string, Expression<Func<Container, object>>, Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>[]>>();
 
         internal WithModifierRegistrar(
-            Func<Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>> defaultModifierFactory)
+            Func<Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>> defaultModifierFactory)
         {
             this.defaultModifierFactory = defaultModifierFactory;
         }
 
-        public override IRegistrar Register(Type serviceType, string name, Expression<Func<IContainer, object>> factoryExpression, params Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>[] modifiers)
+        public override IRegistrar Register(Type serviceType, string name, Expression<Func<Container, object>> factoryExpression, params Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>[] modifiers)
         {
             registrations.Add(Tuple.Create(serviceType, name, factoryExpression, Enumerable.Repeat(defaultModifierFactory(), 1).Concat(modifiers).ToArray()));
             return this;
         }
 
         public IRegistrar With(
-            Func<Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>> newModifier,
+            Func<Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>> newModifier,
             Action<IRegistrar> registrations)
         {
             var nestedRegistrar = new WithModifierRegistrar(newModifier);

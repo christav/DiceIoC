@@ -5,7 +5,7 @@ using DiceIoC.Lifetimes;
 
 namespace DiceIoC
 {
-    public abstract class Container : IContainer
+    public abstract class Container
     {
         public T Resolve<T>(string name)
         {
@@ -58,7 +58,7 @@ namespace DiceIoC
 
         public abstract IEnumerable<object> ResolveAll(Type serviceType);
 
-        public abstract IContainer InScope(IScopedLifetime scope);
+        public abstract Container InScope(IScopedLifetime scope);
 
         public abstract IScopedLifetime CurrentScope { get; }
         public abstract IDictionary<int, object> PerResolveObjects { get; }

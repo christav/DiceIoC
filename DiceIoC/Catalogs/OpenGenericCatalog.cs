@@ -11,19 +11,19 @@ namespace DiceIoC.Catalogs
         private struct FactoryEntry
         {
             public readonly Type RegisteredType;
-            public readonly Expression<Func<IContainer, object>> FactoryExpression;
+            public readonly Expression<Func<Container, object>> FactoryExpression;
 
             public readonly List<
                 Func<
-                    Expression<Func<IContainer, object>>,
-                    Expression<Func<IContainer, object>>
+                    Expression<Func<Container, object>>,
+                    Expression<Func<Container, object>>
                 >
             > Modifiers;
 
             public FactoryEntry(
                 Type registeredType, 
-                Expression<Func<IContainer, object>> factoryExpression, 
-                IEnumerable<Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>> modifiers)
+                Expression<Func<Container, object>> factoryExpression, 
+                IEnumerable<Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>> modifiers)
             {
                 RegisteredType = registeredType;
                 FactoryExpression = factoryExpression;
@@ -37,10 +37,10 @@ namespace DiceIoC.Catalogs
         // Registration API
 
         public override IRegistrar Register(Type serviceType, string name,
-            Expression<Func<IContainer, object>> factoryExpression,
+            Expression<Func<Container, object>> factoryExpression,
             params Func<
-                Expression<Func<IContainer, object>>,
-                Expression<Func<IContainer, object>>
+                Expression<Func<Container, object>>,
+                Expression<Func<Container, object>>
             >[] modifiers)
         {
             if (GenericMarkers.IsValidMarkedGeneric(serviceType))
@@ -60,12 +60,12 @@ namespace DiceIoC.Catalogs
         /// This catalog only gives registrations on demand, not when asking for all.
         /// </summary>
         /// <returns>An empty dictionary.</returns>
-        public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<IContainer, object>>>> GetFactoryExpressions()
+        public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
         {
-            return Enumerable.Empty<KeyValuePair<RegistrationKey, Expression<Func<IContainer, object>>>>();
+            return Enumerable.Empty<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>>();
         }
 
-        public Expression<Func<IContainer, object>> GetFactoryExpression(RegistrationKey key)
+        public Expression<Func<Container, object>> GetFactoryExpression(RegistrationKey key)
         {
             if (!key.Type.IsGenericType) return null;
 
@@ -73,10 +73,10 @@ namespace DiceIoC.Catalogs
             var possibleFactories = Get(dictKey);
             var factoryExpression = SelectFactory(key.Type, possibleFactories);
             var visitor = new GenericTypeRewritingVisitor(key.Type.GetGenericArguments());
-            return (Expression<Func<IContainer, object>>) (visitor.Visit(factoryExpression));
+            return (Expression<Func<Container, object>>) (visitor.Visit(factoryExpression));
         }
 
-        public IEnumerable<Expression<Func<IContainer, object>>> GetFactoryExpressions(Type serviceType)
+        public IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType)
         {
             if (!serviceType.IsGenericType)
             {
@@ -92,7 +92,7 @@ namespace DiceIoC.Catalogs
                     {
                         var visitor = new GenericTypeRewritingVisitor(serviceType.GetGenericArguments());
                         var genericFactory = ApplyModifiers(entry.FactoryExpression, entry.Modifiers);
-                        yield return ((Expression<Func<IContainer, object>>)visitor.Visit(genericFactory));
+                        yield return ((Expression<Func<Container, object>>)visitor.Visit(genericFactory));
                     }
                 }
             }
@@ -103,7 +103,7 @@ namespace DiceIoC.Catalogs
             return factories.Get(key, new List<FactoryEntry>());
         }
 
-        private Expression<Func<IContainer, object>> SelectFactory(Type targetType,
+        private Expression<Func<Container, object>> SelectFactory(Type targetType,
             IEnumerable<FactoryEntry> possibilities)
         {
             return possibilities

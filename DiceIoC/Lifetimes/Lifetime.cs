@@ -8,9 +8,9 @@ namespace DiceIoC.Lifetimes
     /// modifier for use in registration. A lifetime manager
     /// is any object that implements the following methods:
     /// 
-    /// IDisposable Enter(IContainer c);
-    /// object GetValue(IContainer c);
-    /// object SetValue(object value, IContainer c);
+    /// IDisposable Enter(Container c);
+    /// object GetValue(Container c);
+    /// object SetValue(object value, Container c);
     /// 
     /// No need for an interface or base class, just implement
     /// the methods as named above publicly and it's set.
@@ -31,12 +31,12 @@ namespace DiceIoC.Lifetimes
         /// <param name="lifetimeManager">Lifetime container object that will be called by
         /// the rewritten expression.</param>
         /// <returns>The new expression.</returns>
-        public static Expression<Func<IContainer, object>> RewriteForLifetime<T>(
-            Expression<Func<IContainer, object>> factoryExpression, 
+        public static Expression<Func<Container, object>> RewriteForLifetime<T>(
+            Expression<Func<Container, object>> factoryExpression, 
             T lifetimeManager)
         {
             Expression body;
-            var c = Expression.Parameter(typeof(IContainer), "container");
+            var c = Expression.Parameter(typeof(Container), "container");
 
             if (typeof (T).GetMethod("Enter") != null)
             {
@@ -47,14 +47,14 @@ namespace DiceIoC.Lifetimes
                 body = BodyWithoutEnter(c, factoryExpression, lifetimeManager);
             }
 
-            var final = Expression.Lambda<Func<IContainer, object>>(
+            var final = Expression.Lambda<Func<Container, object>>(
                 body, c);
             return final;
         }
 
         private static Expression BodyUsingEnter<T>(
             ParameterExpression container,
-            Expression<Func<IContainer, object>> factoryExpression,
+            Expression<Func<Container, object>> factoryExpression,
             T lifetimeManager)
         {
             var guard = Expression.Parameter(typeof(IDisposable), "guard");
@@ -72,7 +72,7 @@ namespace DiceIoC.Lifetimes
         }
 
         private static Expression BodyWithoutEnter<T>(ParameterExpression container,
-            Expression<Func<IContainer, object>> factoryExpression,
+            Expression<Func<Container, object>> factoryExpression,
             T lifetimeManager)
         {
             var ltm = Expression.Constant(lifetimeManager, typeof (T));

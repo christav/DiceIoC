@@ -57,7 +57,7 @@ namespace DiceIoC
 // ReSharper disable once UnusedMember.Local
             // Method is used via dyamically generated expression
 // ReSharper disable once UnusedParameter.Local
-            public object GetValue(IContainer c)
+            public object GetValue(Container c)
             {
                 return value;
             }
@@ -65,7 +65,7 @@ namespace DiceIoC
 // ReSharper disable once UnusedMember.Local
             // Method is used via dynamically generated expression
 // ReSharper disable once UnusedParameter.Local
-            public object SetValue(object newValue, IContainer c)
+            public object SetValue(object newValue, Container c)
             {
                 return (value = newValue);
             }
@@ -79,8 +79,8 @@ namespace DiceIoC
             }
         }
 
-        public Func<Expression<Func<IContainer, object>>,
-            Expression<Func<IContainer, object>>> Lifetime
+        public Func<Expression<Func<Container, object>>,
+            Expression<Func<Container, object>>> Lifetime
         {
             get
             {
@@ -89,7 +89,7 @@ namespace DiceIoC
         }
 
         public static implicit operator
-            Func<Expression<Func<IContainer, object>>, Expression<Func<IContainer, object>>>(
+            Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>(
             LifetimeContainer lifetime)
         {
             return lifetime.Lifetime;

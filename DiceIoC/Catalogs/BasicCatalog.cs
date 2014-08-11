@@ -8,16 +8,16 @@ namespace DiceIoC.Catalogs
 {
     public class BasicCatalog : CatalogBase, ICatalog
     {
-        private readonly Dictionary<RegistrationKey, Expression<Func<IContainer, object>>> factories =
-            new Dictionary<RegistrationKey, Expression<Func<IContainer, object>>>();
+        private readonly Dictionary<RegistrationKey, Expression<Func<Container, object>>> factories =
+            new Dictionary<RegistrationKey, Expression<Func<Container, object>>>();
 
         // Registration API
 
         public override IRegistrar Register(Type serviceType, string name,
-            Expression<Func<IContainer, object>> factoryExpression,
+            Expression<Func<Container, object>> factoryExpression,
             params Func<
-                Expression<Func<IContainer, object>>,
-                Expression<Func<IContainer, object>>
+                Expression<Func<Container, object>>,
+                Expression<Func<Container, object>>
             >[]  modifiers)
         {
             var key = new RegistrationKey(serviceType, name);
@@ -28,15 +28,15 @@ namespace DiceIoC.Catalogs
             return this;
         }
 
-        public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<IContainer, object>>>> GetFactoryExpressions()
+        public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
         {
             return factories;
         }
 
-        public IEnumerable<Expression<Func<IContainer, object>>> GetFactoryExpressions(Type serviceType)
+        public IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType)
         {
             // this catalog does not return on-demand factory expressions
-            return Enumerable.Empty<Expression<Func<IContainer, object>>>();
+            return Enumerable.Empty<Expression<Func<Container, object>>>();
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace DiceIoC.Catalogs
         /// </summary>
         /// <param name="key">Key to look up</param>
         /// <returns>The expression or null if key is not registered.</returns>
-        public Expression<Func<IContainer, object>> GetFactoryExpression(RegistrationKey key)
+        public Expression<Func<Container, object>> GetFactoryExpression(RegistrationKey key)
         {
             return factories.Get(key);
         }

@@ -7,7 +7,7 @@ namespace DiceIoC.Tests.Basics
 {
     public class ScopeLifetime
     {
-        private IContainer container;
+        private Container container;
 
         public ScopeLifetime()
         {

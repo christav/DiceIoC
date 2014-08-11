@@ -53,7 +53,6 @@
     <Compile Include="Containers\ContainerFactories.cs" />
     <Compile Include="Containers\ResolveTimeContainer.cs" />
     <Compile Include="GenericParameterMarkerTypes.cs" />
-    <Compile Include="IContainer.cs" />
     <Compile Include="LifetimeContainer.cs" />
     <Compile Include="LifetimeScope.cs" />
     <Compile Include="Lifetimes\IScopedLifetime.cs" />

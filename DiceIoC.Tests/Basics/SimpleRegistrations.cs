@@ -58,7 +58,7 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void ContainerPassedToDelegateIsNotResolvingContainer()
         {
-            IContainer passedContainer = null;
+            Container passedContainer = null;
             catalog.Register(c => new ConcreteClass(),
                 Passthrough.Modifier(c => {
                     passedContainer = c;
