@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using DiceIoC.Containers;
 
 namespace DiceIoC.Catalogs
 {
     /// <summary>
-    /// Interface that <see cref="Container"/> instances
+    /// Interface that <see cref="ConfiguredContainer"/> instances
     /// use to interface with a catalog.
     /// </summary>
     public interface ICatalog
@@ -26,7 +27,7 @@ namespace DiceIoC.Catalogs
 
         /// <summary>
         /// Get all the factory expressions for a known service type regardless of name.
-        /// Used in calls to <see cref="Container.ResolveAll{T}"/>
+        /// Used in calls to <see cref="ConfiguredContainer.ResolveAll{T}"/>
         /// </summary>
         /// <param name="serviceType">Type to get factories for.</param>
         /// <returns>The set of factories.</returns>

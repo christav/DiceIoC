@@ -49,6 +49,9 @@
     <Compile Include="Catalogs\ResolveCallInliningVisitor.cs" />
     <Compile Include="Catalogs\WithModifierRegistrar.cs" />
     <Compile Include="Container.cs" />
+    <Compile Include="Containers\ConfiguredContainer.cs" />
+    <Compile Include="Containers\ContainerFactories.cs" />
+    <Compile Include="Containers\ResolveTimeContainer.cs" />
     <Compile Include="GenericParameterMarkerTypes.cs" />
     <Compile Include="IContainer.cs" />
     <Compile Include="LifetimeContainer.cs" />

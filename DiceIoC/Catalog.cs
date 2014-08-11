@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using DiceIoC.Catalogs;
+using DiceIoC.Containers;
 
 namespace DiceIoC
 {
@@ -58,7 +59,7 @@ namespace DiceIoC
 
         public Container CreateContainer()
         {
-            return new Container(this);
+            return new ConfiguredContainer(this);
         }
 
         IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<IContainer, object>>>> ICatalog.GetFactoryExpressions()

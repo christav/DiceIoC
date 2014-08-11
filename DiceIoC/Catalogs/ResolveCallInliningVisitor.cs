@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DiceIoC.Containers;
 
 namespace DiceIoC.Catalogs
 {
     /// <summary>
     /// An expression visitor that looks for invocations of
-    /// <see cref="Container.Resolve{T}(string)" /> or
-    /// <see cref="Container.Resolve{T}()" /> and replaces them
+    /// <see cref="ConfiguredContainer.Resolve{T}(string)" /> or
+    /// <see cref="ConfiguredContainer.Resolve{T}()" /> and replaces them
     /// with the expression that the container would use to resolve
     /// that, with the goal of eliminating dictionary lookups at
     /// resolve time.
