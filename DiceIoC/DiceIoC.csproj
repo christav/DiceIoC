@@ -49,14 +49,13 @@
     <Compile Include="Catalogs\ResolveCallInliningVisitor.cs" />
     <Compile Include="Catalogs\WithModifierRegistrar.cs" />
     <Compile Include="Container.cs" />
-    <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="GenericParameterMarkerTypes.cs" />
     <Compile Include="IContainer.cs" />
-    <Compile Include="IScopedLifetime.cs" />
     <Compile Include="LifetimeContainer.cs" />
     <Compile Include="LifetimeScope.cs" />
-    <Compile Include="LifetimeScopeBase.cs" />
+    <Compile Include="Lifetimes\IScopedLifetime.cs" />
     <Compile Include="Lifetimes\Lifetime.cs" />
+    <Compile Include="Lifetimes\LifetimeScopeBase.cs" />
     <Compile Include="Lifetimes\LockUnlockDispose.cs" />
     <Compile Include="Lifetimes\SynchronizedLifetime.cs" />
     <Compile Include="Lifetimes\NoopDispose.cs" />
@@ -65,6 +64,7 @@
     <Compile Include="Scope.cs" />
     <Compile Include="Lifetimes\ScopedLifetimeManager.cs" />
     <Compile Include="ThreadsafeLifetimeScope.cs" />
+    <Compile Include="Utils\DictionaryExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DiceIoC
+namespace DiceIoC.Lifetimes
 {
     public abstract class LifetimeScopeBase : IScopedLifetime, IDisposable
     {

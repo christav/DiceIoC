@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DiceIoC.Lifetimes;
 
 namespace DiceIoC
 {

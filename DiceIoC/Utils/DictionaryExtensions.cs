@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
-namespace DiceIoC
+namespace DiceIoC.Utils
 {
     static class DictionaryExtensions
     {
