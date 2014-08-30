@@ -18,12 +18,6 @@ namespace DiceIoC.Tests.Basics
         }
 
         [Fact]
-        public void DefaultContainerHasNoRegistrations()
-        {
-            ((ICatalog) catalog).GetFactoryExpressions().Count().Should().Be(0);
-        }
-
-        [Fact]
         public void CanCreateContainerFromCatalog()
         {
             var container = catalog.CreateContainer();

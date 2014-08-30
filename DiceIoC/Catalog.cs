@@ -1,82 +1,140 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using DiceIoC.Catalogs;
 using DiceIoC.Containers;
+using DiceIoC.Registrations;
+using DiceIoC.Utils;
 
 namespace DiceIoC
 {
-    public sealed class Catalog : ICatalog
+    public class Catalog
     {
-        private readonly BasicCatalog innerCatalog = new BasicCatalog();
-        private readonly OpenGenericCatalog genericCatalog = new OpenGenericCatalog();
+        private readonly Dictionary<RegistrationKey, IRegistration> concreteRegistrations =
+            new Dictionary<RegistrationKey, IRegistration>();
 
-        public Catalog Register(Type serviceType, string name, Expression<Func<Container, object>> factoryExpression,
-            params Func<
-                Expression<Func<Container, object>>,
-                Expression<Func<Container, object>>
-            >[] modifiers)
+        private readonly Dictionary<RegistrationKey, List<IRegistration>> genericRegistrations =
+            new Dictionary<RegistrationKey, List<IRegistration>>();
+
+
+        public Catalog Register(Type serviceType, string name, 
+            Expression<Func<Container, object>> factoryExpression, 
+            params Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>[] modifiers)
         {
             var key = new RegistrationKey(serviceType, name);
-            if (!GenericMarkers.IsMarkedGeneric(key.Type))
+            var registration = RegistrationBuilder.CreateRegistration(serviceType, factoryExpression, modifiers);
+            if (GenericMarkers.IsMarkedGeneric(serviceType))
             {
-                innerCatalog.Register(serviceType, name, factoryExpression, modifiers);
+                key = new RegistrationKey(serviceType.GetGenericTypeDefinition(), name);
+                List<IRegistration> currentRegistrations = genericRegistrations.Get(key, new List<IRegistration>());
+                currentRegistrations.Add(registration);
+                genericRegistrations[key] = currentRegistrations;
             }
             else
             {
-                genericCatalog.Register(serviceType, name, factoryExpression, modifiers);
+                concreteRegistrations[key] = registration;
             }
             return this;
         }
 
-        public Catalog Register<T>(string name, Expression<Func<Container, T>> factoryExpression,
-            params Func<
-                Expression<Func<Container, object>>,
-                Expression<Func<Container, object>>
-            >[] modifiers)
+        public Catalog Register<TService>(string name, Expression<Func<Container, TService>> factoryExpression, 
+            params Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>[] modifiers)
         {
-            return Register(typeof(T), name, CatalogBase.CastToObject(factoryExpression), modifiers);
+            return Register(typeof (TService), name, CastToObject(factoryExpression), modifiers);
         }
 
-        public Catalog Register<T>(Expression<Func<Container, T>> factoryExpression,
-            params Func<
-                Expression<Func<Container, object>>,
-                Expression<Func<Container, object>>
-            >[] modifiers)
+        public Catalog Register<TService>(Expression<Func<Container, TService>> factoryExpression, 
+            params Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>[] modifiers)
         {
-            return Register(typeof (T), null, CatalogBase.CastToObject(factoryExpression), modifiers);
+            return Register(typeof (TService), null, CastToObject(factoryExpression), modifiers);
         }
 
-        public Catalog With(Func<Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>> modifierFactory,
-            Action<IRegistrar> registrations)
+        public Container CreateContainer()
         {
-            var registrar = new WithModifierRegistrar(modifierFactory);
+            return new ConfiguredContainer(new CatalogImpl(this));
+        }
+
+        public Catalog With(Func<Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>> modiferFactory, Action<IRegistrar> registrations)
+        {
+            var registrar = new WithModifierRegistrar(modiferFactory);
             registrations(registrar);
             registrar.Register(this);
             return this;
         }
 
-        public Container CreateContainer()
+        private class CatalogImpl : ICatalog
         {
-            return new ConfiguredContainer(this);
+            private readonly Dictionary<RegistrationKey, IRegistration> concreteRegistrations =
+                new Dictionary<RegistrationKey, IRegistration>();
+
+            private readonly Dictionary<RegistrationKey, List<IRegistration>> genericRegistrations =
+                new Dictionary<RegistrationKey, List<IRegistration>>();
+
+            public CatalogImpl(Catalog outer)
+            {
+                concreteRegistrations = outer.concreteRegistrations;
+                genericRegistrations = outer.genericRegistrations;
+            }
+
+            public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
+            {
+                return concreteRegistrations
+                    .Select(kvp => new KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>(
+                        kvp.Key, kvp.Value.GetFactory()));
+            }
+
+            public Expression<Func<Container, object>> GetFactoryExpression(RegistrationKey key)
+            {
+                return GetConcreteFactoryExpression(key) ?? GetGenericFactoryExpression(key);
+            }
+
+            public IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType)
+            {
+                if (!serviceType.IsGenericType)
+                {
+                    return Enumerable.Empty<Expression<Func<Container, object>>>();
+                }
+
+                var genericType = serviceType.GetGenericTypeDefinition();
+                return genericRegistrations
+                    .Where(kvp => kvp.Key.Type == genericType)
+                    .SelectMany(kvp => kvp.Value)
+                    .Select(r => r.GetFactory(serviceType))
+                    .Where(r => r != null);
+            }
+
+            private Expression<Func<Container, object>> GetConcreteFactoryExpression(RegistrationKey key)
+            {
+                var registration = concreteRegistrations.Get(key);
+                Expression<Func<Container, object>> factory = null;
+                if (registration != null)
+                {
+                    factory = registration.GetFactory();
+                }
+                return factory;
+            }
+
+            private Expression<Func<Container, object>> GetGenericFactoryExpression(RegistrationKey key)
+            {
+                if (!key.Type.IsGenericType) return null;
+
+                var key2 = new RegistrationKey(key.Type.GetGenericTypeDefinition(), key.Name);
+                return genericRegistrations.Get(key2, new List<IRegistration>())
+                    .Select(r => r.GetFactory(key.Type)).FirstOrDefault(e => e != null);
+            }
         }
 
-        IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> ICatalog.GetFactoryExpressions()
+        internal static Expression<Func<Container, object>> CastToObject<T>(
+            Expression<Func<Container, T>> originalExpression)
         {
-            return innerCatalog.GetFactoryExpressions();
-        }
+            var c = Expression.Parameter(typeof(Container), "c");
 
-        IEnumerable<Expression<Func<Container, object>>> ICatalog.GetFactoryExpressions(Type serviceType)
-        {
-            return
-                innerCatalog.GetFactoryExpressions(serviceType)
-                    .Concat(genericCatalog.GetFactoryExpressions(serviceType));
-        }
+            var cast = Expression.Convert(
+                Expression.Invoke(originalExpression, c), typeof(object));
 
-        Expression<Func<Container, object>> ICatalog.GetFactoryExpression(RegistrationKey key)
-        {
-            return innerCatalog.GetFactoryExpression(key) ?? genericCatalog.GetFactoryExpression(key);
+            return Expression.Lambda<Func<Container, object>>(
+                cast, c);
         }
     }
 }

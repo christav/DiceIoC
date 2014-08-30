@@ -22,7 +22,7 @@
     // The T0, T1, etc at resolve time will be replaced with the parameters
     // passed in the actual resolve call. So, in this call:
     //
-    //    var repository = container.Resolve<IRepository<User, InMemoryDb>();
+    //    var repository = container.Resolve<IRepository<User, InMemoryDb>>();
     //
     // T0 would be replaced by User, and T1 would be replaced by InMemoryDb.
     //
@@ -43,7 +43,7 @@
     // can do:
     //
     //    class T0Data : T0 { public T0Data() { } }
-    //    interface T1DataProvider: T1, IDataProvider 
+    //    interface T1DataProvider: T1, IDataProvider
     //    {
     //        DbConnection Open() { throw new NotImplementedException(); }
     //        ... etc for each method in IDataProvider

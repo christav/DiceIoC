@@ -36,15 +36,11 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Catalog.cs" />
-    <Compile Include="Catalogs\BasicCatalog.cs" />
-    <Compile Include="Catalogs\CatalogBase.cs" />
     <Compile Include="Catalogs\GenericMarkerConverter.cs" />
     <Compile Include="Catalogs\GenericMarkers.cs" />
     <Compile Include="Catalogs\GenericTypeRewritingVisitor.cs" />
     <Compile Include="Catalogs\ICatalog.cs" />
     <Compile Include="Catalogs\IRegistrar.cs" />
-    <Compile Include="Catalogs\OpenGenericCatalog.cs" />
     <Compile Include="Catalogs\RegistrationKey.cs" />
     <Compile Include="Catalogs\ResolveCallInliningVisitor.cs" />
     <Compile Include="Catalogs\WithModifierRegistrar.cs" />
@@ -63,6 +59,12 @@
     <Compile Include="Lifetimes\NoopDispose.cs" />
     <Compile Include="PerResolve.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Catalog.cs" />
+    <Compile Include="Registrations\DirectRegistration.cs" />
+    <Compile Include="Registrations\IRegistration.cs" />
+    <Compile Include="Registrations\OpenGenericRegistration.cs" />
+    <Compile Include="Registrations\RegistrationBase.cs" />
+    <Compile Include="Registrations\RegistrationBuilder.cs" />
     <Compile Include="Scope.cs" />
     <Compile Include="Lifetimes\ScopedLifetimeManager.cs" />
     <Compile Include="ThreadsafeLifetimeScope.cs" />
