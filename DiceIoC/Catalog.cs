@@ -9,6 +9,9 @@ using DiceIoC.Utils;
 
 namespace DiceIoC
 {
+    using FactoryExpression = Expression<Func<Container, object>>;
+    using FactoryModifier = Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>;
+
     public class Catalog
     {
         private readonly Dictionary<RegistrationKey, IRegistration> concreteRegistrations =
@@ -19,8 +22,8 @@ namespace DiceIoC
 
 
         public Catalog Register(Type serviceType, string name, 
-            Expression<Func<Container, object>> factoryExpression, 
-            params Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>[] modifiers)
+            FactoryExpression factoryExpression, 
+            params FactoryModifier[] modifiers)
         {
             var key = new RegistrationKey(serviceType, name);
             var registration = RegistrationBuilder.CreateRegistration(serviceType, factoryExpression, modifiers);
@@ -38,14 +41,20 @@ namespace DiceIoC
             return this;
         }
 
+        public Catalog Register(Type serviceType, FactoryExpression factoryExpression,
+            params FactoryModifier[] modifiers)
+        {
+            return Register(serviceType, null, factoryExpression, modifiers);
+        }
+
         public Catalog Register<TService>(string name, Expression<Func<Container, TService>> factoryExpression, 
-            params Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>[] modifiers)
+            params FactoryModifier[] modifiers)
         {
             return Register(typeof (TService), name, CastToObject(factoryExpression), modifiers);
         }
 
         public Catalog Register<TService>(Expression<Func<Container, TService>> factoryExpression, 
-            params Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>[] modifiers)
+            params FactoryModifier[] modifiers)
         {
             return Register(typeof (TService), null, CastToObject(factoryExpression), modifiers);
         }
@@ -55,7 +64,7 @@ namespace DiceIoC
             return new ConfiguredContainer(new CatalogImpl(this));
         }
 
-        public Catalog With(Func<Func<Expression<Func<Container, object>>, Expression<Func<Container, object>>>> modiferFactory, Action<IRegistrar> registrations)
+        public Catalog With(Func<FactoryModifier> modiferFactory, Action<IRegistrar> registrations)
         {
             var registrar = new WithModifierRegistrar(modiferFactory);
             registrations(registrar);
@@ -77,19 +86,19 @@ namespace DiceIoC
                 genericRegistrations = outer.genericRegistrations;
             }
 
-            public IEnumerable<KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>> GetFactoryExpressions()
+            public IEnumerable<KeyValuePair<RegistrationKey, FactoryExpression>> GetFactoryExpressions()
             {
                 return concreteRegistrations
                     .Select(kvp => new KeyValuePair<RegistrationKey, Expression<Func<Container, object>>>(
                         kvp.Key, kvp.Value.GetFactory()));
             }
 
-            public Expression<Func<Container, object>> GetFactoryExpression(RegistrationKey key)
+            public FactoryExpression GetFactoryExpression(RegistrationKey key)
             {
                 return GetConcreteFactoryExpression(key) ?? GetGenericFactoryExpression(key);
             }
 
-            public IEnumerable<Expression<Func<Container, object>>> GetFactoryExpressions(Type serviceType)
+            public IEnumerable<FactoryExpression> GetFactoryExpressions(Type serviceType)
             {
                 if (!serviceType.IsGenericType)
                 {
@@ -104,7 +113,7 @@ namespace DiceIoC
                     .Where(r => r != null);
             }
 
-            private Expression<Func<Container, object>> GetConcreteFactoryExpression(RegistrationKey key)
+            private FactoryExpression GetConcreteFactoryExpression(RegistrationKey key)
             {
                 var registration = concreteRegistrations.Get(key);
                 Expression<Func<Container, object>> factory = null;
@@ -115,7 +124,7 @@ namespace DiceIoC
                 return factory;
             }
 
-            private Expression<Func<Container, object>> GetGenericFactoryExpression(RegistrationKey key)
+            private FactoryExpression GetGenericFactoryExpression(RegistrationKey key)
             {
                 if (!key.Type.IsGenericType) return null;
 
@@ -125,16 +134,13 @@ namespace DiceIoC
             }
         }
 
-        internal static Expression<Func<Container, object>> CastToObject<T>(
-            Expression<Func<Container, T>> originalExpression)
+        internal static FactoryExpression CastToObject<T>(Expression<Func<Container, T>> originalExpression)
         {
             var c = Expression.Parameter(typeof(Container), "c");
 
-            var cast = Expression.Convert(
-                Expression.Invoke(originalExpression, c), typeof(object));
+            var cast = Expression.Convert(Expression.Invoke(originalExpression, c), typeof(object));
 
-            return Expression.Lambda<Func<Container, object>>(
-                cast, c);
+            return Expression.Lambda<Func<Container, object>>(cast, c);
         }
     }
 }
