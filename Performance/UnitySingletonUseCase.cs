@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
-using Microsoft.Practices.Unity;
 using Performance.Domain;
+using Unity;
+using Unity.Lifetime;
 
 namespace Performance
 {

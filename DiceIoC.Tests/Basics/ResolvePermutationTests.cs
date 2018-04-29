@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
@@ -27,7 +28,8 @@ namespace DiceIoC.Tests.Basics
         [Fact]
         public void CanResolveByName()
         {
-            Assert.DoesNotThrow(() => container.Resolve<ConcreteClass>("other"));
+            Action act = () => container.Resolve<ConcreteClass>("other");
+            act.Should().NotThrow();
         }
 
         [Fact]

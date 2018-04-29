@@ -1,4 +1,5 @@
-﻿using DiceIoC.Tests.SampleTypes;
+﻿using System;
+using DiceIoC.Tests.SampleTypes;
 using FluentAssertions;
 using Xunit;
 
@@ -13,7 +14,8 @@ namespace DiceIoC.Tests.Basics
             using (var singleton = new LifetimeContainer())
             {
                 catalog.Register(c => new ConcreteClass(), singleton);
-                Assert.DoesNotThrow(() => catalog.CreateContainer());
+                Action act = () => catalog.CreateContainer();
+                act.Should().NotThrow();
             }
         }
 
@@ -45,11 +47,10 @@ namespace DiceIoC.Tests.Basics
                     .CreateContainer();
 
                 o1 = container.Resolve<ConcreteClass>();
-
-                Assert.False(o1.Disposed);
+                o1.Disposed.Should().BeFalse();
             }
 
-            Assert.True(o1.Disposed);
+            o1.Disposed.Should().BeTrue();
         }
 
         [Fact]
